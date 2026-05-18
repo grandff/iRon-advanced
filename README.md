@@ -16,6 +16,7 @@ I am expanding iRon to incorporate highly requested features (like Radar, Spotte
   - [*Spotter*](#spotter)
   - [*Radar*](#radar)
   - [*Incident*](#incident)
+  - [*FlatMap*](#flatmap)
 - [Installing & Running](#installing--running)
 - [Configuration](#configuration)
 - [Building from source](#building-from-source)
@@ -76,6 +77,10 @@ A proximity radar rendering a top-down view of cars around you. Your car is posi
 ### *Incident*
 
 A smart incident warning system. Instead of just showing a generic yellow flag banner, this overlay calculates if a car ahead of you has gone off-track during a caution. If a crashed or off-track car is detected within 150 meters ahead, it renders a prominent blinking warning banner specifying the distance to the crash, helping you anticipate the danger.
+
+### *FlatMap*
+
+A linear track map (ribbon map) that visualizes the entire track horizontally. It provides a global overview of traffic density, crucial for multiclass and endurance racing. Your car is represented as a tall green marker. Other cars are drawn based on their track position (same lap = white, lap ahead = red, lap behind = blue, pitting = transparent yellow). It can be configured in `config.json` to be either absolute (0 to 100% of the track) or relative (your car always in the center).
 
 ---
 

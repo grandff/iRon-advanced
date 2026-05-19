@@ -67,6 +67,7 @@ struct Car
     int             isBuddy = 0;
     int             isFlagged = 0;
     int             incidentCount = 0;
+    std::string     carName;
     float           carClassEstLapTime = 0;
     int             practicePosition = 0;
     int             qualPosition = 0;

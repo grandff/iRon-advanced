@@ -489,6 +489,9 @@ ConnectionStatus ir_tick()
             sprintf( path, "DriverInfo:Drivers:CarIdx:{%d}CurDriverIncidentCount:", carIdx );
             parseYamlInt( sessionYaml, path, &car.incidentCount );
 
+            sprintf( path, "DriverInfo:Drivers:CarIdx:{%d}CarScreenNameShort:", carIdx );
+            parseYamlString( sessionYaml, path, &car.carName );
+
             sprintf( path, "DriverInfo:Drivers:CarIdx:{%d}CarClassEstLapTime:", carIdx );
             parseYamlFloat( sessionYaml, path, &car.carClassEstLapTime );
 

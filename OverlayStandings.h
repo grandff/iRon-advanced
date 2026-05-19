@@ -72,10 +72,11 @@ protected:
         m_columns.reset();
         m_columns.add( (int)Columns::POSITION,   computeTextExtent( L"P99", m_dwriteFactory.Get(), m_textFormat.Get() ).x, fontSize/2 );
         m_columns.add( (int)Columns::CAR_NUMBER, computeTextExtent( L"#999", m_dwriteFactory.Get(), m_textFormat.Get() ).x, fontSize/2 );
+        m_columns.add( (int)Columns::CAR_NAME,   computeTextExtent( L"Car Brand Text  ", m_dwriteFactory.Get(), m_textFormatSmall.Get() ).x, fontSize/2 );
         m_columns.add( (int)Columns::NAME,       0, fontSize/2 );
         m_columns.add( (int)Columns::PIT,        computeTextExtent( L"P.Age", m_dwriteFactory.Get(), m_textFormat.Get() ).x, fontSize/2 );
         m_columns.add( (int)Columns::LICENSE,    computeTextExtent( L"A 4.44", m_dwriteFactory.Get(), m_textFormatSmall.Get() ).x, fontSize/6 );
-        m_columns.add( (int)Columns::IRATING,    computeTextExtent( L"999.9k", m_dwriteFactory.Get(), m_textFormatSmall.Get() ).x, fontSize/6 );
+        m_columns.add( (int)Columns::IRATING,    computeTextExtent( L"999.9k (+123)", m_dwriteFactory.Get(), m_textFormatSmall.Get() ).x, fontSize/6 );
         m_columns.add( (int)Columns::BEST,       computeTextExtent( L"999.99.999", m_dwriteFactory.Get(), m_textFormat.Get() ).x, fontSize/2 );
         m_columns.add( (int)Columns::LAST,       computeTextExtent( L"999.99.999", m_dwriteFactory.Get(), m_textFormat.Get() ).x, fontSize/2 );
         m_columns.add( (int)Columns::DELTA,      computeTextExtent( L"9999.9999", m_dwriteFactory.Get(), m_textFormat.Get() ).x, fontSize/2 );
@@ -94,6 +95,8 @@ protected:
             float   last = 0;
             bool    hasFastestLap = false;
             int     pitAge = 0;
+            int     carClassId = 0;
+            float   expectedIRatingChange = 0;
         };
         std::vector<CarInfo> carInfo;
         carInfo.reserve( IR_MAX_CARS );
@@ -116,6 +119,8 @@ protected:
             ci.delta        = ir_session.sessionType!=SessionType::RACE ? 0 : -ir_CarIdxF2Time.getFloat(i);
             ci.last         = ir_CarIdxLastLapTime.getFloat(i);
             ci.pitAge       = ir_CarIdxLap.getInt(i) - car.lastLapInPits;
+            ci.carClassId   = ir_CarIdxClass.getInt(i);
+            ci.expectedIRatingChange = 0;
 
             ci.best         = ir_CarIdxBestLapTime.getFloat(i);
             if( ir_session.sessionType==SessionType::RACE && ir_SessionState.getInt()<=irsdk_StateWarmup || ir_session.sessionType==SessionType::QUALIFY && ci.best<=0 )
@@ -146,6 +151,41 @@ protected:
             const CarInfo& ciLeader = carInfo[0];
             CarInfo&       ci       = carInfo[i];
             ci.lapDelta = ir_getLapDeltaToLeader( ci.carIdx, ciLeader.carIdx );
+        }
+
+        // Compute expected iRating changes for RACE sessions
+        if (ir_session.sessionType == SessionType::RACE) {
+            for (auto& ci : carInfo) {
+                const Car& myCar = ir_session.cars[ci.carIdx];
+                if (myCar.irating <= 0) continue;
+                
+                int classDrivers = 0;
+                float expectedChange = 0.0f;
+                
+                for (const auto& cj : carInfo) {
+                    if (ci.carIdx == cj.carIdx) continue;
+                    
+                    const Car& otherCar = ir_session.cars[cj.carIdx];
+                    if (otherCar.irating <= 0) continue;
+                    if (ci.carClassId != cj.carClassId) continue;
+                    
+                    classDrivers++;
+                    
+                    // Expected probability ci beats cj
+                    float expectedProb = 1.0f / (1.0f + powf(10.0f, (otherCar.irating - myCar.irating) / 400.0f));
+                    
+                    // Actual score: 1 if ci is ahead of cj, 0 if behind, 0.5 if tied
+                    float actualScore = 0.5f;
+                    if (ci.position < cj.position && ci.position > 0) actualScore = 1.0f;
+                    else if (ci.position > cj.position && cj.position > 0) actualScore = 0.0f;
+                    
+                    expectedChange += (actualScore - expectedProb);
+                }
+                
+                if (classDrivers > 0) {
+                    ci.expectedIRatingChange = (200.0f / (classDrivers + 1)) * expectedChange;
+                }
+            }
         }
 
         const float  fontSize           = g_cfg.getFloat( m_name, "font_size", DefaultFontSize );
@@ -314,14 +354,28 @@ protected:
             // Irating
             {
                 clm = m_columns.get( (int)Columns::IRATING );
-                swprintf( s, _countof(s), L"%.1fk", (float)car.irating/1000.0f );
+                if (ir_session.sessionType == SessionType::RACE && car.irating > 0 && ci.expectedIRatingChange != 0) {
+                    swprintf( s, _countof(s), L"%.1fk (%s%d)", (float)car.irating/1000.0f, ci.expectedIRatingChange > 0 ? L"+" : L"", (int)roundf(ci.expectedIRatingChange) );
+                } else {
+                    swprintf( s, _countof(s), L"%.1fk", (float)car.irating/1000.0f );
+                }
                 r = { xoff+clm->textL, y-lineHeight/2, xoff+clm->textR, y+lineHeight/2 };
                 rr.rect = { r.left+1, r.top+1, r.right-1, r.bottom-1 };
                 rr.radiusX = 3;
                 rr.radiusY = 3;
                 m_brush->SetColor( iratingBgCol );
                 m_renderTarget->FillRoundedRectangle( &rr, m_brush.Get() );
-                m_brush->SetColor( iratingTextCol );
+                
+                // Color expected change differently (green for positive, red for negative)
+                if (ir_session.sessionType == SessionType::RACE && car.irating > 0 && ci.expectedIRatingChange != 0) {
+                    float4 textC = iratingTextCol;
+                    if (ci.expectedIRatingChange > 0) textC = float4(0.1f, 0.6f, 0.1f, 1.0f);
+                    else if (ci.expectedIRatingChange < 0) textC = float4(0.8f, 0.1f, 0.1f, 1.0f);
+                    m_brush->SetColor( textC );
+                } else {
+                    m_brush->SetColor( iratingTextCol );
+                }
+                
                 m_text.render( m_renderTarget.Get(), s, m_textFormatSmall.Get(), xoff+clm->textL, xoff+clm->textR, y, m_brush.Get(), DWRITE_TEXT_ALIGNMENT_CENTER );
             }
 
@@ -389,6 +443,12 @@ protected:
 protected:
 
     Microsoft::WRL::ComPtr<IDWriteTextFormat>  m_textFormat;
+    Microsoft::WRL::ComPtr<IDWriteTextFormat>  m_textFormatSmall;
+
+    ColumnLayout m_columns;
+    TextCache    m_text;
+};
+xtFormat>  m_textFormat;
     Microsoft::WRL::ComPtr<IDWriteTextFormat>  m_textFormatSmall;
 
     ColumnLayout m_columns;

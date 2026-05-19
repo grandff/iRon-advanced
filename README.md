@@ -9,28 +9,37 @@ Expanded lightweight overlays for iRacing.<br><br>
 
 ---
 
-This project is an expanded version of the original `iRon` overlays, aiming to provide additional advanced features while maintaining the original philosophy. It incorporates highly requested features found in modern overlay suites (like Radar, Spotter, Flat Map, etc.). It remains extremely lightweight, easy to modify, and free of external runtime dependencies.
+This project is an expanded version of the original `iRon` overlays, aiming to provide additional advanced features while maintaining its core philosophy: remaining extremely lightweight, easy to modify, and free of external runtime dependencies. It incorporates highly requested features found in modern overlay suites (like Radar, Spotter, Flat Map, etc.).
 
-### What's different from the original iRon?
-1. **Global Layout Persistence (No more resetting positions!)**
-   * The original iRon lost window positions if the app was restarted. In **iRon-Advanced**, your overlay positions, sizes, and toggle states (on/off) are safely and globally saved to `Documents\iRon_Advanced\config.json`. Every time you launch the `.exe`, your exact last layout is restored automatically.
-2. **Enhanced Telemetry & Standings**
-   * The Standings overlay now calculates **real-time Expected iRating changes** based on the Elo system and displays the **Car Model/Manufacturer** column.
-3. **7 Brand New Overlays Added:**
-   * **Radar:** Proximity top-down radar.
-   * **Spotter:** Visual blind-spot warnings.
-   * **Incident Warning:** Smart forward-crash detection.
-   * **Traffic (Multiclass):** Dynamic blue-flag warnings for faster approaching classes.
-   * **Flat Map:** Linear traffic ribbon map.
-   * **Delta Bar:** Real-time optimal/best lap delta gauge.
-   * **Pit Helper:** Speed limit and pit stop repair timer.
+> **Based on the original iRon project by lespalt:** [https://github.com/lespalt/iRon](https://github.com/lespalt/iRon)
+
+<br>
+
+### ✨ What's different from the original iRon?
+
+**1. 💾 Global Layout Persistence (No more resetting positions!)**
+* The original iRon lost window positions if the app was restarted. 
+* In **iRon-Advanced**, your overlay positions, sizes, and toggle states (on/off) are safely and globally saved to `Documents\iRon_Advanced\config.json`. Every time you launch the `.exe`, your exact last layout is restored automatically.
+
+**2. 📊 Enhanced Telemetry & Standings**
+* The Standings overlay now calculates **real-time Expected iRating changes (+/-)** based on the Elo system.
+* Displays the **Car Model/Manufacturer** column so you know exactly what everyone is driving.
+
+**3. 🚀 7 Brand New Overlays Added:**
+* **Radar:** Proximity top-down radar.
+* **Spotter:** Visual blind-spot warnings.
+* **Incident Warning:** Smart forward-crash detection.
+* **Traffic (Multiclass):** Dynamic blue-flag warnings for faster approaching classes.
+* **Flat Map:** Linear traffic ribbon map.
+* **Delta Bar:** Real-time optimal/best lap delta gauge.
+* **Pit Helper:** Speed limit and pit stop repair timer.
 
 ---
 
 # Contents
 
-- [Where to Download](#where-to-download)
-- [Overlays](#overlays)
+- [Where to Download](#-where-to-download)
+- [Overlays](#-overlays)
   - [*Relative*](#relative)
   - [*DDU*](#ddu)
   - [*Inputs*](#inputs)
@@ -43,18 +52,20 @@ This project is an expanded version of the original `iRon` overlays, aiming to p
   - [*Flat Map (NEW)*](#flat-map-new)
   - [*Delta Bar (NEW)*](#delta-bar-new)
   - [*Pit Helper (NEW)*](#pit-helper-new)
-- [Installing & Running](#installing--running)
-- [Configuration](#configuration)
-- [Building from source](#building-from-source)
-- [Dependencies](#dependencies)
+- [Installing & Running](#-installing--running)
+- [Configuration](#️-configuration)
+- [Building from source](#️-building-from-source)
+- [Dependencies](#-dependencies)
 
 ---
 
-## Where to Download
+## 📥 Where to Download
 
 The latest binary release can be found [here](https://github.com/lespalt/iRon/releases/latest).
 
-## Overlays
+<br>
+
+## 📺 Overlays
 
 ### *Relative*
 Like the *Relative* box in iRacing, but with additional information such as license, iRating, and laps driven since the last pit stop. You can also highlight your friends by adding their names to a buddy list.
@@ -118,7 +129,7 @@ A dedicated overlay that only appears when entering the pit lane. It displays yo
 
 ---
 
-## Installing & Running
+## 🚀 Installing & Running
 
 The app does not require installation. Just copy the executable to a folder of your choice.
 
@@ -126,7 +137,7 @@ To use it, simply run the executable. It doesn't matter whether you do this befo
 
 ---
 
-## Configuration
+## ⚙️ Configuration
 
 To place and resize the overlays, press **ALT-J**. This will enter a mode in which you can move overlays around with the mouse and resize them by dragging their bottom-right corner. Press **ALT-J** again to go back to normal mode.
 
@@ -139,12 +150,12 @@ Certain aspects of the overlays, such as colors, font types, sizes etc. can be c
 
 ---
 
-## Building from source
+## 🛠️ Building from source
 
 This app is built with Visual Studio 2022. The free version should suffice, though I haven't verified it. The project/solution files should work out of the box. Depending on your Visual Studio setup, you may need to install additional prerequisites (static libs) needed to build DirectX applications.
 
 ---
 
-## Dependencies
+## 📦 Dependencies
 
 There are no runtime dependencies other than standard Windows components like DirectX. Those should already be present on most if not all systems that can run iRacing. Build dependencies (most notably the iRacing SDK and picojson) are kept to a minimum and are included in the repository.

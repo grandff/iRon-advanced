@@ -41,7 +41,7 @@ jobs:
       uses: softprops/action-gh-release@v2
       with:
         files: x64/Release/iRon_Advanced.exe
-        name: Release ${{ github.ref_name }} # 태그 이름이나 브랜치 이름으로 자동 생성
+        name: ${{ github.ref_name }} # 태그 이름(v1.0.x)만 나오도록 수정
         generate_release_notes: true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

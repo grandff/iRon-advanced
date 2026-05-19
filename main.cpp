@@ -46,6 +46,8 @@ SOFTWARE.
 #include "OverlayRadar.h"
 #include "OverlayIncident.h"
 #include "OverlayFlatMap.h"
+#include "OverlayTraffic.h"
+#include "OverlayDeltaBar.h"
 #include "TelemetryLogger.h"
 
 // ANSI Color Codes
@@ -227,6 +229,7 @@ int main()
     overlays.push_back( new OverlayIncident() );
     overlays.push_back( new OverlayFlatMap() );
     overlays.push_back( new OverlayTraffic() );
+    overlays.push_back( new OverlayDeltaBar() );
 #ifdef _DEBUG
     overlays.push_back( new OverlayDebug() );
 #endif

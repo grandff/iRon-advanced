@@ -51,6 +51,8 @@ protected:
 
     virtual void onUpdate() override
     {
+        
+
         bool showOverlay = false;
         
         if (m_uiEditEnabled) {
@@ -157,7 +159,8 @@ protected:
 
         // Subtext (Limit)
         m_text.render(m_renderTarget.Get(), subText.c_str(), m_smallFormat.Get(), 0, (float)m_width, 135.0f, textWhiteBrush.Get(), DWRITE_TEXT_ALIGNMENT_CENTER);
-    }
+        
+}
 
 private:
     Microsoft::WRL::ComPtr<IDWriteTextFormat> m_titleFormat;

@@ -23,6 +23,8 @@ protected:
 
     virtual void onUpdate() override
     {
+        
+
         // 1. 전체 트랙 배경 그리기 (반투명 어두운 바)
         Microsoft::WRL::ComPtr<ID2D1SolidColorBrush> bgBrush;
         m_renderTarget->CreateSolidColorBrush(D2D1::ColorF(0.0f, 0.0f, 0.0f, 0.5f), &bgBrush);
@@ -124,5 +126,6 @@ protected:
         const float myMarkerHeight = 25.0f; // 다른 차들보다 위아래로 더 길게
         D2D1_RECT_F myCarRect = D2D1::RectF(myDrawX - myMarkerWidth, (m_height / 2.0f) - myMarkerHeight, myDrawX + myMarkerWidth, (m_height / 2.0f) + myMarkerHeight);
         m_renderTarget->FillRectangle(&myCarRect, playerBrush.Get());
-    }
+        
+}
 };

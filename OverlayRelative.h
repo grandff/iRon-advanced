@@ -201,7 +201,7 @@ class OverlayRelative : public Overlay
             const float xoff = 10.0f;
             m_columns.layout( (float)m_width - 20 );
 
-            m_renderTarget->BeginDraw();
+            
             for( int cnt=0, i=selfCarInfoIdx-entriesAbove; i<(int)relatives.size() && y<=listingAreaBot-lineHeight/2; ++i, y+=lineHeight, ++cnt )
             {
                 // Alternating line backgrounds
@@ -414,7 +414,7 @@ class OverlayRelative : public Overlay
                     }
                 }
             }
-            m_renderTarget->EndDraw();
+            
         }
 
     protected:

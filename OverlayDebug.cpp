@@ -98,7 +98,7 @@ void OverlayDebug::onUpdate()
 {
     const float lineHeight = 20;
 
-    m_renderTarget->BeginDraw();
+    
 
     for( int i=0; i<(int)g_dbgLines.size(); ++i )
     {
@@ -112,7 +112,7 @@ void OverlayDebug::onUpdate()
         m_renderTarget->DrawTextA( wstr.c_str(), (int)wstr.size(), m_textFormat.Get(), &r, m_brush.Get(), D2D1_DRAW_TEXT_OPTIONS_CLIP );
     }
 
-    m_renderTarget->EndDraw();
+    
 
     g_dbgLines.clear();
 }

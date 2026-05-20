@@ -22,6 +22,8 @@ protected:
 
     virtual void onUpdate() override
     {
+        
+
         // 배경 반투명 처리
         Microsoft::WRL::ComPtr<ID2D1SolidColorBrush> bgBrush;
         m_renderTarget->CreateSolidColorBrush(D2D1::ColorF(0.0f, 0.0f, 0.0f, 0.4f), &bgBrush);
@@ -114,5 +116,6 @@ protected:
                 m_renderTarget->FillRoundedRectangle(&rect, otherCarBrush.Get());
             }
         }
-    }
+        
+}
 };

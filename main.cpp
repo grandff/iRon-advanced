@@ -66,6 +66,8 @@ SOFTWARE.
 #define ANSI_B_WHITE "\x1b[97m"
 #define ANSI_BG_RED  "\x1b[41m"
 
+#include <shlobj.h>
+
 // Function to enable ANSI colors in Windows Console
 void EnableANSIColors() {
     HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -77,15 +79,13 @@ void EnableANSIColors() {
 }
 
 std::string getDesktopPath() {
-    const char* home = getenv("HOME");
-    if (home) {
-        return std::string(home) + "/Desktop/iRon_telemetry.jsonl";
+    char path[MAX_PATH];
+    if (SUCCEEDED(SHGetFolderPathA(NULL, CSIDL_PERSONAL, NULL, 0, path))) {
+        std::string dir = std::string(path) + "\\iRon_Advanced";
+        CreateDirectoryA(dir.c_str(), NULL);
+        return dir + "\\telemetry_debug.log";
     }
-    const char* userprofile = getenv("USERPROFILE");
-    if (userprofile) {
-        return std::string(userprofile) + "\\Desktop\\iRon_telemetry.jsonl";
-    }
-    return "/tmp/iRon_telemetry.jsonl";
+    return "telemetry_debug.log";
 }
 
 TelemetryLogger g_telemetryLogger(getDesktopPath());

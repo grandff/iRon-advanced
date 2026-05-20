@@ -147,7 +147,7 @@ class OverlayInputs : public Overlay
             steeringLineSink->EndFigure( D2D1_FIGURE_END_OPEN );
             steeringLineSink->Close();
 
-            m_renderTarget->BeginDraw();
+            
             m_brush->SetColor( g_cfg.getFloat4( m_name, "throttle_fill_col", float4(0.2f,0.45f,0.15f,0.6f) ) );
             m_renderTarget->FillGeometry( throttleFillPath.Get(), m_brush.Get() );
             m_brush->SetColor( g_cfg.getFloat4( m_name, "brake_fill_col", float4(0.46f,0.01f,0.06f,0.6f) ) );
@@ -158,7 +158,7 @@ class OverlayInputs : public Overlay
             m_renderTarget->DrawGeometry( brakeLinePath.Get(), m_brush.Get(), thickness );
             m_brush->SetColor( g_cfg.getFloat4( m_name, "steering_col", float4(1,1,1,0.3f) ) );
             m_renderTarget->DrawGeometry( steeringLinePath.Get(), m_brush.Get(), thickness );
-            m_renderTarget->EndDraw();
+            
         }
 
     protected:

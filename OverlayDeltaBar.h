@@ -35,6 +35,8 @@ protected:
 
     virtual void onUpdate() override
     {
+        
+
         bool useOptimal = g_cfg.getBool(m_name, "use_optimal_delta", true);
         float maxScale = g_cfg.getFloat(m_name, "max_scale_seconds", 2.0f); // 바의 최대 범위 (초)
 
@@ -96,7 +98,8 @@ protected:
         Microsoft::WRL::ComPtr<ID2D1SolidColorBrush> textBrush;
         m_renderTarget->CreateSolidColorBrush(D2D1::ColorF(1.0f, 1.0f, 1.0f, 1.0f), &textBrush);
         m_text.render(m_renderTarget.Get(), buf, m_textFormat.Get(), 0, (float)m_width, (float)m_height / 2.0f, textBrush.Get(), DWRITE_TEXT_ALIGNMENT_CENTER);
-    }
+        
+}
 
 private:
     Microsoft::WRL::ComPtr<IDWriteTextFormat> m_textFormat;

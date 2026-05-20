@@ -236,7 +236,7 @@ class OverlayDDU : public Overlay
 
             wchar_t s[512];
 
-            m_renderTarget->BeginDraw();
+            
             m_brush->SetColor( textCol );
 
             // Background
@@ -686,7 +686,7 @@ class OverlayDDU : public Overlay
                 m_text.render( m_renderTarget.Get(), L"Water",   m_textFormatSmall.Get(), m_boxWater.x0, m_boxWater.x1, m_boxWater.y0, m_brush.Get(), DWRITE_TEXT_ALIGNMENT_CENTER );
             }
             
-            m_renderTarget->EndDraw();
+            
         }
 
         void addBoxFigure( ID2D1GeometrySink* geometrySink, const Box& box )

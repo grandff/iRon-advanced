@@ -107,6 +107,8 @@ protected:
 
     virtual void onUpdate() override
     {
+        
+
         bool isImperial = ir_DisplayUnits.getInt() == 0;
 
         float gapX = 20.0f;
@@ -143,7 +145,8 @@ protected:
                 ir_RRtempCL.getFloat(), ir_RRtempCM.getFloat(), ir_RRtempCR.getFloat(),
                 ir_RRwearL.getFloat(), ir_RRwearM.getFloat(), ir_RRwearR.getFloat(), isImperial);
         }
-    }
+        
+}
 
 private:
     Microsoft::WRL::ComPtr<IDWriteTextFormat> m_titleFormat;

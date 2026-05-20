@@ -70,7 +70,7 @@ class OverlayCover : public Overlay
             const float h = (float)m_height;
             const float cornerRadius = g_cfg.getFloat( m_name, "corner_radius", 6.0f );
 
-            m_renderTarget->BeginDraw();
+            
             m_renderTarget->Clear( float4(0,0,0,0) );
 
             // 1. Draw solid black background
@@ -96,7 +96,7 @@ class OverlayCover : public Overlay
                 m_brush.Get()
             );
 
-            m_renderTarget->EndDraw();
+            
         }
 
     private:

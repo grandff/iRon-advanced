@@ -298,10 +298,11 @@ void Overlay::update()
     const float h = (float)m_height;
     const float cornerRadius = g_cfg.getFloat( m_name, "corner_radius", m_name=="OverlayInputs"?2.0f:6.0f );
 
+    m_renderTarget->BeginDraw();
+
     // Clear/draw background
     if( !hasCustomBackground() )
     {
-        m_renderTarget->BeginDraw();
         m_renderTarget->Clear( float4(0,0,0,0) );
         D2D1_ROUNDED_RECT rr;
         rr.rect = { 0.5f, 0.5f, w-0.5f, h-0.5f };
@@ -309,7 +310,6 @@ void Overlay::update()
         rr.radiusY = cornerRadius;
         m_brush->SetColor( g_cfg.getFloat4( m_name, "background_col", float4(0,0,0,0.7f) ) );
         m_renderTarget->FillRoundedRectangle( &rr, m_brush.Get() );
-        m_renderTarget->EndDraw();
     }
 
     // Overlay-specific logic and rendering
@@ -318,7 +318,6 @@ void Overlay::update()
     if( m_uiEditEnabled )
     {
         // Draw highlight frame and resize corner indicators
-        m_renderTarget->BeginDraw();
         D2D1_ROUNDED_RECT rr;
         rr.rect = { 0.5f, 0.5f, w-0.5f, h-0.5f };
         rr.radiusX = cornerRadius;
@@ -327,8 +326,23 @@ void Overlay::update()
         m_renderTarget->DrawRoundedRectangle( &rr, m_brush.Get(), 2 );
         m_renderTarget->DrawLine( float2(w-0.5f,h-0.5f-ResizeBorderWidth), float2(w-0.5f-ResizeBorderWidth,h-0.5f-ResizeBorderWidth), m_brush.Get(), 2 );
         m_renderTarget->DrawLine( float2(w-0.5f-ResizeBorderWidth,h-0.5f), float2(w-0.5f-ResizeBorderWidth,h-0.5f-ResizeBorderWidth), m_brush.Get(), 2 );
-        m_renderTarget->EndDraw();
+        
+        // Draw Overlay ID / Name for easy identification during UI Edit
+        m_brush->SetColor( float4(0, 0, 0, 0.7f) );
+        D2D1_RECT_F bgRect = { 2.0f, 2.0f, 200.0f, 25.0f };
+        m_renderTarget->FillRectangle(&bgRect, m_brush.Get());
+        
+        m_brush->SetColor( float4(1, 1, 0, 1) ); // Yellow
+        // We use a simple DrawText hack if dwrite factory is available. We don't have text format cached here easily,
+        // so let's just make one temporarily (not super efficient, but it's only for UI edit mode)
+        Microsoft::WRL::ComPtr<IDWriteTextFormat> tempFormat;
+        if(SUCCEEDED(m_dwriteFactory->CreateTextFormat(L"Consolas", NULL, DWRITE_FONT_WEIGHT_BOLD, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, 16.0f, L"en-us", &tempFormat))) {
+            std::wstring wname(m_name.begin(), m_name.end());
+            m_renderTarget->DrawTextW(wname.c_str(), (UINT32)wname.length(), tempFormat.Get(), { 5.0f, 2.0f, 300.0f, 25.0f }, m_brush.Get());
+        }
     }
+
+    m_renderTarget->EndDraw();
 
     HRCHECK(m_swapChain->Present( 1, 0 ));
 }

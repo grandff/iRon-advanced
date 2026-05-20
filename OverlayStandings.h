@@ -218,7 +218,7 @@ protected:
         D2D1_RECT_F r = {};
         D2D1_ROUNDED_RECT rr = {};
 
-        m_renderTarget->BeginDraw();
+        
         m_brush->SetColor( headerCol );
 
         // Headers
@@ -432,7 +432,7 @@ protected:
             m_text.render( m_renderTarget.Get(), s, m_textFormat.Get(), xoff, (float)m_width-2*xoff, y, m_brush.Get(), DWRITE_TEXT_ALIGNMENT_CENTER );
         }
 
-        m_renderTarget->EndDraw();
+        
     }
 
     virtual bool canEnableWhileNotDriving() const

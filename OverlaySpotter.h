@@ -21,6 +21,8 @@ protected:
 
     virtual void onUpdate() override
     {
+        
+
         const int spotterState = ir_CarLeftRight.getInt();
         
         // 0: Off, 1: Clear, 2: Left, 3: Right, 4: Left+Right, 5: 2 Left, 6: 2 Right
@@ -48,5 +50,6 @@ protected:
             D2D1_RECT_F rightRect = D2D1::RectF((float)m_width - rectWidth, 0.0f, (float)m_width, (float)m_height);
             m_renderTarget->FillRectangle(&rightRect, m_brush.Get());
         }
-    }
+        
+}
 };

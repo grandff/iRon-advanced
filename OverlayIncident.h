@@ -38,6 +38,8 @@ protected:
 
     virtual void onUpdate() override
     {
+        
+
         if (ir_session.driverCarIdx < 0 || ir_session.trackLength <= 0) return;
 
         bool showWarning = false;
@@ -126,7 +128,8 @@ protected:
                 m_text.render(m_renderTarget.Get(), warningText.c_str(), m_textFormat.Get(), 0, (float)m_width, (float)m_height / 2.0f, textBrush.Get(), DWRITE_TEXT_ALIGNMENT_CENTER);
             }
         }
-    }
+        
+}
 
 private:
     Microsoft::WRL::ComPtr<IDWriteTextFormat> m_textFormat;

@@ -34,6 +34,7 @@ SOFTWARE.
 #include <string>
 #include <vector>
 #include <windows.h>
+#include "util.h"
 #include "iracing.h"
 #include "Config.h"
 #include "OverlayCover.h"
@@ -166,6 +167,42 @@ static void giveFocusToIracing()
         SetForegroundWindow( hwnd );
 }
 
+static void prepopulateConfig(const std::vector<Overlay*>& overlays)
+{
+    // General settings
+    g_cfg.getString("General", "ui_edit_hotkey", "alt-j");
+    g_cfg.getBool("General", "performance_mode_30hz", false);
+
+    // Overlay hotkeys and states
+    g_cfg.getString("OverlayStandings", "toggle_hotkey", "ctrl-space");
+    g_cfg.getString("OverlayDDU", "toggle_hotkey", "ctrl-1");
+    g_cfg.getString("OverlayInputs", "toggle_hotkey", "ctrl-2");
+    g_cfg.getString("OverlayRelative", "toggle_hotkey", "ctrl-3");
+    g_cfg.getString("OverlayCover", "toggle_hotkey", "ctrl-4");
+    g_cfg.getString("OverlaySpotter", "toggle_hotkey", "ctrl-5");
+    g_cfg.getString("OverlayRadar", "toggle_hotkey", "ctrl-6");
+    g_cfg.getString("OverlayIncident", "toggle_hotkey", "ctrl-7");
+    g_cfg.getString("OverlayFlatMap", "toggle_hotkey", "ctrl-8");
+    g_cfg.getString("OverlayTireDash", "toggle_hotkey", "ctrl-9");
+
+    for (Overlay* o : overlays)
+    {
+        std::string name = o->getName();
+        g_cfg.getBool(name, "enabled", true);
+        
+        // Populate standard default positions using hash
+        const unsigned hash = MurmurHash2(name.c_str(), (int)name.length(), 0x1234);
+        const int defaultX = (hash % 100) * 15;
+        const int defaultY = (hash % 80) * 10;
+        const float2 defaultSize = o->getDefaultSize();
+        
+        g_cfg.getInt(name, "window_pos_x", defaultX);
+        g_cfg.getInt(name, "window_pos_y", defaultY);
+        g_cfg.getInt(name, "window_size_x", (int)defaultSize.x);
+        g_cfg.getInt(name, "window_size_y", (int)defaultSize.y);
+    }
+}
+
 int main()
 {
     // Enable ANSI colors for beautiful console output
@@ -176,15 +213,23 @@ int main()
 
     // Get dynamic folder in My Documents and set it up
     std::string ronDir = getRonDir();
+    if (!ronDir.empty()) {
+        std::string logPath = ronDir + "app.log";
+        FILE* errFp = nullptr;
+        freopen_s(&errFp, logPath.c_str(), "a", stderr);
+    }
+    logMsg("INFO", "iRon-Advanced initialized. Settings directory: %s", ronDir.c_str());
 
     // Load the config and watch it for changes
     g_cfg.setFilename(ronDir + "config.json");
     g_cfg.load();
+    logMsg("INFO", "Config files loaded successfully from: %s", (ronDir + "config.json").c_str());
     g_cfg.watchForChanges();
 
     // Start telemetry logging dynamically
     g_telemetryLogger = new TelemetryLogger(ronDir + "telemetry_debug.log");
     g_telemetryLogger->start();
+    logMsg("INFO", "Telemetry logger successfully started at: %s", (ronDir + "telemetry_debug.log").c_str());
 
     // Register global hotkeys
     registerHotkeys();
@@ -236,6 +281,10 @@ int main()
     overlays.push_back( new OverlayDebug() );
 #endif
 
+    // Prepopulate config keys and save immediately to guarantee config.json exists with all defaults on first boot
+    prepopulateConfig(overlays);
+    g_cfg.save();
+
     ConnectionStatus  status   = ConnectionStatus::UNKNOWN;
     bool              uiEdit   = false;
     unsigned          frameCnt = 0;
@@ -249,10 +298,14 @@ int main()
         status = ir_tick();
         if( status != prevStatus )
         {
-            if( status == ConnectionStatus::DISCONNECTED )
+            if( status == ConnectionStatus::DISCONNECTED ) {
                 printf("\r" ANSI_BOLD ANSI_B_RED "  [ \x1b[5mWAITING\x1b[25m ] " ANSI_RESET "Waiting for iRacing connection...                       ");
-            else
+                logMsg("INFO", "iRacing disconnected. Waiting for connection...");
+            }
+            else {
                 printf("\r" ANSI_BOLD ANSI_GREEN "  [ CONNECTED ] " ANSI_RESET "iRacing active (%s)                       ", ConnectionStatusStr[(int)status]);
+                logMsg("INFO", "iRacing connected! State: %s", ConnectionStatusStr[(int)status]);
+            }
             fflush(stdout);
 
             // Enable user-selected overlays, passing uiEdit state

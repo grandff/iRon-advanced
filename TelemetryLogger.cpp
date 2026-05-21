@@ -130,12 +130,7 @@ void TelemetryLogger::loggingThread() {
         }
 
         if (m_file.is_open()) {
-            // Check if it's time to flush (every 5 minutes)
-            auto now = std::chrono::steady_clock::now();
-            if (std::chrono::duration_cast<std::chrono::minutes>(now - m_lastFlush) >= m_flushInterval) {
-                m_file.flush();
-                m_lastFlush = now;
-            }
+            m_file.flush();
         }
     }
 }

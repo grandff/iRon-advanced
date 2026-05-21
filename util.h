@@ -35,6 +35,8 @@ SOFTWARE.
 #include <unordered_map>
 #include <ctype.h>
 #include <shlobj.h>
+#include <stdarg.h>
+#include <time.h>
 
 #define HRCHECK( x_ ) do{ \
     HRESULT hr_ = x_; \
@@ -53,6 +55,79 @@ inline std::string getRonDir()
     }
     return "";
 }
+
+inline void logMsg(const char* level, const char* format, ...)
+{
+    std::string ronDir = getRonDir();
+    if (ronDir.empty()) return;
+    
+    std::string logPath = ronDir + "app.log";
+    FILE* fp = fopen(logPath.c_str(), "a");
+    
+    time_t rawtime;
+    struct tm timeinfo;
+    char timeStr[64];
+    time(&rawtime);
+    localtime_s(&timeinfo, &rawtime);
+    strftime(timeStr, sizeof(timeStr), "%Y-%m-%d %H:%M:%S", &timeinfo);
+    
+    char message[2048];
+    va_list args;
+    va_start(args, format);
+    vsnprintf(message, sizeof(message), format, args);
+    va_end(args);
+    
+    printf("[%s] [%s] %s\n", timeStr, level, message);
+    
+    char dbgMsg[2560];
+    sprintf_s(dbgMsg, "[iRon] [%s] [%s] %s\n", timeStr, level, message);
+    OutputDebugStringA(dbgMsg);
+    
+    if (fp) {
+        fprintf(fp, "[%s] [%s] %s\n", timeStr, level, message);
+        fclose(fp);
+    }
+}
+
+inline int printf_to_log_and_console(const char* format, ...)
+{
+    va_list args;
+    va_start(args, format);
+    
+    // Print to console using standard vprintf
+    va_list args1;
+    va_copy(args1, args);
+    int result = vprintf(format, args1);
+    va_end(args1);
+    
+    // Print to app.log
+    std::string ronDir = getRonDir();
+    if (!ronDir.empty()) {
+        std::string logPath = ronDir + "app.log";
+        FILE* fp = fopen(logPath.c_str(), "a");
+        if (fp) {
+            time_t rawtime;
+            struct tm timeinfo;
+            char timeStr[64];
+            time(&rawtime);
+            localtime_s(&timeinfo, &rawtime);
+            strftime(timeStr, sizeof(timeStr), "%Y-%m-%d %H:%M:%S", &timeinfo);
+            
+            fprintf(fp, "[%s] [CONSOLE] ", timeStr);
+            va_list args2;
+            va_copy(args2, args);
+            vfprintf(fp, format, args2);
+            va_end(args2);
+            fclose(fp);
+        }
+    }
+    
+    va_end(args);
+    return result;
+}
+
+#define printf printf_to_log_and_console
+
 
 
 struct float2

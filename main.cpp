@@ -53,6 +53,8 @@ SOFTWARE.
 #include "OverlayTireDash.h"
 #include "TelemetryLogger.h"
 
+#define printf printf_to_log_and_console
+
 // ANSI Color Codes
 #define ANSI_RESET   "\x1b[0m"
 #define ANSI_BOLD    "\x1b[1m"

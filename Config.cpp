@@ -26,6 +26,8 @@ SOFTWARE.
 #include <atomic>
 #include "Config.h"
 
+#define printf printf_to_log_and_console
+
 Config              g_cfg;
 
 static void configWatcher( std::atomic<bool>* m_hasChanged, std::string watchDir )

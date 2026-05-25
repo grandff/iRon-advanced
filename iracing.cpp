@@ -25,6 +25,8 @@ SOFTWARE.
 #include "iracing.h"
 #include "Config.h"
 
+#define printf printf_to_log_and_console
+
 irsdkCVar ir_SessionTime("SessionTime");    // double[1] Seconds since session start (s)
 irsdkCVar ir_SessionTick("SessionTick");    // int[1] Current update number ()
 irsdkCVar ir_SessionNum("SessionNum");    // int[1] Session number ()
@@ -493,10 +495,10 @@ ConnectionStatus ir_tick()
             parseYamlInt( sessionYaml, path, &car.incidentCount );
 
             sprintf( path, "DriverInfo:Drivers:CarIdx:{%d}CarScreenNameShort:", carIdx );
-            parseYamlString( sessionYaml, path, &car.carName );
+            parseYamlStr( sessionYaml, path, car.carName );
 
             sprintf( path, "DriverInfo:Drivers:CarIdx:{%d}ClubName:", carIdx );
-            parseYamlString( sessionYaml, path, &car.clubName );
+            parseYamlStr( sessionYaml, path, car.clubName );
 
             sprintf( path, "DriverInfo:Drivers:CarIdx:{%d}CarClassEstLapTime:", carIdx );
             parseYamlFloat( sessionYaml, path, &car.carClassEstLapTime );

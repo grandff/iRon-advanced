@@ -126,9 +126,6 @@ inline int printf_to_log_and_console(const char* format, ...)
     return result;
 }
 
-#define printf printf_to_log_and_console
-
-
 
 struct float2
 {

@@ -375,6 +375,10 @@ void Overlay::setWindowPosAndSize( int x, int y, int w, int h, bool callSetWindo
     targetProperties.pixelFormat.format = DXGI_FORMAT_UNKNOWN;
     targetProperties.pixelFormat.alphaMode = D2D1_ALPHA_MODE_PREMULTIPLIED;
     HRCHECK(m_d2dFactory->CreateDxgiSurfaceRenderTarget( dxgiSurface.Get(), &targetProperties, &m_renderTarget ));
+
+    // Recreate default brush using the new render target to avoid device-dependent resource mismatch crashes
+    m_brush.Reset();
+    HRCHECK(m_renderTarget->CreateSolidColorBrush( float4(0,0,0,1), &m_brush ));
 }
 
 void Overlay::saveWindowPosAndSize()

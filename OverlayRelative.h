@@ -47,7 +47,7 @@ class OverlayRelative : public Overlay
 
     protected:
 
-        enum class Columns { POSITION, CAR_NUMBER, CLUB_NAME, NAME, DELTA, LICENSE, SAFETY_RATING, IRATING, PIT };
+        enum class Columns { POSITION, CAR_NUMBER, NAME, DELTA, LICENSE, SAFETY_RATING, IRATING, PIT };
 
         virtual void onEnable()
         {
@@ -78,7 +78,6 @@ class OverlayRelative : public Overlay
             m_columns.reset();
             m_columns.add( (int)Columns::POSITION,   computeTextExtent( L"P99", m_dwriteFactory.Get(), m_textFormat.Get() ).x, fontSize/2 );
             m_columns.add( (int)Columns::CAR_NUMBER, computeTextExtent( L"#999", m_dwriteFactory.Get(), m_textFormat.Get() ).x, fontSize/2 );
-            m_columns.add( (int)Columns::CLUB_NAME,  computeTextExtent( L"Club Name Text  ", m_dwriteFactory.Get(), m_textFormatSmall.Get() ).x, fontSize/2 );
             m_columns.add( (int)Columns::NAME,       0, fontSize/2 );
             m_columns.add( (int)Columns::DELTA,      computeTextExtent( L"+99L  -99.9", m_dwriteFactory.Get(), m_textFormat.Get() ).x, 1, fontSize/2 );
 
@@ -92,8 +91,11 @@ class OverlayRelative : public Overlay
                 m_columns.add( (int)Columns::IRATING,       computeTextExtent( L"999.9k (+123)", m_dwriteFactory.Get(), m_textFormatSmall.Get() ).x, fontSize/8 );
         }
 
-        virtual void onUpdate()
+        virtual void onUpdate() override
         {            
+            if (ir_session.driverCarIdx < 0)
+                return;
+
             struct CarInfo {
                 int     carIdx = 0;
                 float   delta = 0;
@@ -324,16 +326,7 @@ class OverlayRelative : public Overlay
 
 
 
-                // Club name
-                {
-                    clm = m_columns.get( (int)Columns::CLUB_NAME );
-                    std::wstring countryCode = getCountryCode(car.clubName);
-                    std::wstring clubStr = car.clubName.empty() ? L"Global" : toWide(car.clubName);
-                    std::wstring displayStr = L"[" + countryCode + L"] " + clubStr;
-                    
-                    m_brush->SetColor( col );
-                    m_text.render( m_renderTarget.Get(), displayStr.c_str(), m_textFormatSmall.Get(), xoff+clm->textL, xoff+clm->textR, y, m_brush.Get(), DWRITE_TEXT_ALIGNMENT_LEADING );
-                }
+
 
                 // Name
                 {

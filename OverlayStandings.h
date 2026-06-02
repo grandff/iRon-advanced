@@ -35,7 +35,7 @@ public:
 
     const float DefaultFontSize = 15;
 
-    enum class Columns { POSITION, CAR_NUMBER, CLUB_NAME, NAME, DELTA, BEST, LAST, LICENSE, IRATING, PIT };
+    enum class Columns { POSITION, CAR_NUMBER, NAME, DELTA, BEST, LAST, LICENSE, IRATING, PIT };
 
     OverlayStandings()
         : Overlay("OverlayStandings")
@@ -77,7 +77,6 @@ protected:
         m_columns.reset();
         m_columns.add( (int)Columns::POSITION,   computeTextExtent( L"P99", m_dwriteFactory.Get(), m_textFormat.Get() ).x, fontSize/2 );
         m_columns.add( (int)Columns::CAR_NUMBER, computeTextExtent( L"#999", m_dwriteFactory.Get(), m_textFormat.Get() ).x, fontSize/2 );
-        m_columns.add( (int)Columns::CLUB_NAME,  computeTextExtent( L"Club Name Text  ", m_dwriteFactory.Get(), m_textFormatSmall.Get() ).x, fontSize/2 );
         m_columns.add( (int)Columns::NAME,       0, fontSize/2 );
         m_columns.add( (int)Columns::PIT,        computeTextExtent( L"P.Age", m_dwriteFactory.Get(), m_textFormat.Get() ).x, fontSize/2 );
         m_columns.add( (int)Columns::LICENSE,    computeTextExtent( L"A 4.44", m_dwriteFactory.Get(), m_textFormatSmall.Get() ).x, fontSize/6 );
@@ -321,16 +320,7 @@ protected:
 
 
 
-            // Club name
-            {
-                clm = m_columns.get( (int)Columns::CLUB_NAME );
-                std::wstring countryCode = getCountryCode(car.clubName);
-                std::wstring clubStr = car.clubName.empty() ? L"Global" : toWide(car.clubName);
-                std::wstring displayStr = L"[" + countryCode + L"] " + clubStr;
-                
-                m_brush->SetColor( textCol );
-                m_text.render( m_renderTarget.Get(), displayStr.c_str(), m_textFormatSmall.Get(), xoff+clm->textL, xoff+clm->textR, y, m_brush.Get(), DWRITE_TEXT_ALIGNMENT_LEADING );
-            }
+
 
             // Name (with Country Initial Badge)
             {

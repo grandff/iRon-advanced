@@ -103,13 +103,14 @@ protected:
             m_dwriteFactory->CreateTextFormat(L"Microsoft YaHei UI", NULL, DWRITE_FONT_WEIGHT_BOLD, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, 14.0f, L"en-us", &textFormat);
             textFormat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
             textFormat->SetWordWrapping(DWRITE_WORD_WRAPPING_NO_WRAP);
+            textFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
 
             Microsoft::WRL::ComPtr<ID2D1SolidColorBrush> textBrush;
             m_renderTarget->CreateSolidColorBrush(D2D1::ColorF(1.0f, 1.0f, 1.0f, 1.0f), &textBrush);
 
             std::wstring label = m_isLeft ? L"SPOTTER L" : L"SPOTTER R";
-            TextCache textCache;
-            textCache.render(m_renderTarget.Get(), label.c_str(), textFormat.Get(), 0.0f, (float)m_width, (float)m_height / 2.0f, textBrush.Get(), DWRITE_TEXT_ALIGNMENT_CENTER);
+            D2D1_RECT_F textRect = D2D1::RectF(0.0f, 0.0f, (float)m_width, (float)m_height);
+            m_renderTarget->DrawText(label.c_str(), (UINT32)label.length(), textFormat.Get(), &textRect, textBrush.Get(), D2D1_DRAW_TEXT_OPTIONS_CLIP);
         }
     }
 };

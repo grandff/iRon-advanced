@@ -533,7 +533,13 @@ inline bool parseHotkey( const std::string& desc, UINT* mod, UINT* vk )
 }
 
 inline std::wstring getCountryCode(const std::string& clubName) {
-    if (clubName.empty()) return L"UN";
+    std::string lowerClub = clubName;
+    for (char &c : lowerClub) {
+        if (c >= 'A' && c <= 'Z') c = c - 'A' + 'a';
+    }
+    if (lowerClub.empty() || lowerClub.rfind("non-", 0) == 0 || lowerClub == "none" || lowerClub == "non") {
+        return L"GL";
+    }
     
     if (clubName == "Korea") return L"KR";
     if (clubName == "Japan") return L"JP";
@@ -566,11 +572,17 @@ inline std::wstring getCountryCode(const std::string& clubName) {
         return code;
     }
     
-    return L"UN";
+    return L"GL";
 }
 
 inline std::wstring getCountryCode3(const std::string& clubName) {
-    if (clubName.empty()) return L"UNN";
+    std::string lowerClub = clubName;
+    for (char &c : lowerClub) {
+        if (c >= 'A' && c <= 'Z') c = c - 'A' + 'a';
+    }
+    if (lowerClub.empty() || lowerClub.rfind("non-", 0) == 0 || lowerClub == "none" || lowerClub == "non") {
+        return L"GLB";
+    }
     
     if (clubName == "Korea") return L"KOR";
     if (clubName == "Japan") return L"JPN";
@@ -611,7 +623,7 @@ inline std::wstring getCountryCode3(const std::string& clubName) {
         return code;
     }
     
-    return L"UNN";
+    return L"GLB";
 }
 
 

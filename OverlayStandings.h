@@ -236,9 +236,7 @@ protected:
 
 
 
-        clm = m_columns.get( (int)Columns::CLUB_NAME );
-        swprintf( s, _countof(s), L"Club" );
-        m_text.render( m_renderTarget.Get(), s, m_textFormatSmall.Get(), xoff+clm->textL, xoff+clm->textR, y, m_brush.Get(), DWRITE_TEXT_ALIGNMENT_LEADING );
+
 
         clm = m_columns.get( (int)Columns::NAME );
         swprintf( s, _countof(s), L"Driver" );

@@ -251,36 +251,6 @@ int main()
     g_telemetryLogger->start();
     logMsg("INFO", "Telemetry logger successfully started at: %s", (ronDir + "telemetry_debug.log").c_str());
 
-    // Register global hotkeys
-    registerHotkeys();
-
-    printf("\n" ANSI_B_RED " ====================================================================== " ANSI_RESET "\n\n");
-    
-    printf(ANSI_BOLD ANSI_B_WHITE "  iRon-Advanced " ANSI_RESET ANSI_B_RED " | " ANSI_RESET "Lightweight Overlays for iRacing\n\n");
-    
-    printf(ANSI_YELLOW "  [ INFO ] " ANSI_RESET "Most overlays are active ONLY when iRacing is running\n");
-    printf("           and your car is on the track.\n\n");
-
-    printf(ANSI_BOLD "  [ HOTKEYS ]" ANSI_RESET "\n");
-    printf("    " ANSI_B_RED ">" ANSI_RESET " Move and resize overlays : " ANSI_CYAN "[ %s ]\n" ANSI_RESET, g_cfg.getString("General","ui_edit_hotkey","").c_str() );
-    printf("    " ANSI_B_RED ">" ANSI_RESET " Toggle standings         : " ANSI_CYAN "[ %s ]\n" ANSI_RESET, g_cfg.getString("OverlayStandings","toggle_hotkey","").c_str() );
-    printf("    " ANSI_B_RED ">" ANSI_RESET " Toggle DDU               : " ANSI_CYAN "[ %s ]\n" ANSI_RESET, g_cfg.getString("OverlayDDU","toggle_hotkey","").c_str() );
-    printf("    " ANSI_B_RED ">" ANSI_RESET " Toggle inputs            : " ANSI_CYAN "[ %s ]\n" ANSI_RESET, g_cfg.getString("OverlayInputs","toggle_hotkey","").c_str() );
-    printf("    " ANSI_B_RED ">" ANSI_RESET " Toggle relative          : " ANSI_CYAN "[ %s ]\n" ANSI_RESET, g_cfg.getString("OverlayRelative","toggle_hotkey","").c_str() );
-    printf("    " ANSI_B_RED ">" ANSI_RESET " Toggle cover             : " ANSI_CYAN "[ %s ]\n" ANSI_RESET, g_cfg.getString("OverlayCover","toggle_hotkey","").c_str() );
-    printf("    " ANSI_B_RED ">" ANSI_RESET " Toggle spotter           : " ANSI_CYAN "[ %s ]\n" ANSI_RESET, g_cfg.getString("OverlaySpotter","toggle_hotkey","").c_str() );
-    printf("    " ANSI_B_RED ">" ANSI_RESET " Toggle radar             : " ANSI_CYAN "[ %s ]\n" ANSI_RESET, g_cfg.getString("OverlayRadar","toggle_hotkey","").c_str() );
-    printf("    " ANSI_B_RED ">" ANSI_RESET " Toggle incident warning  : " ANSI_CYAN "[ %s ]\n" ANSI_RESET, g_cfg.getString("OverlayIncident","toggle_hotkey","").c_str() );
-    printf("    " ANSI_B_RED ">" ANSI_RESET " Toggle tire dash         : " ANSI_CYAN "[ %s ]\n" ANSI_RESET, g_cfg.getString("OverlayTireDash","toggle_hotkey","").c_str() );
-    
-    printf("\n" ANSI_BOLD "  [ CONFIG ]" ANSI_RESET "\n");
-    printf("    Settings are auto-saved to " ANSI_YELLOW "Documents\\iRon_Advanced\\config.json" ANSI_RESET ".\n");
-    printf("    You can edit it manually at any time to customize aesthetics.\n");
-    
-    printf("\n    Close this window to exit.\n\n");
-    
-    printf(ANSI_B_RED " ====================================================================== " ANSI_RESET "\n\n");
-
     // Create overlays
     std::vector<Overlay*> overlays;
     overlays.push_back( new OverlayCover() );
@@ -302,6 +272,37 @@ int main()
     // Prepopulate config keys and save immediately to guarantee config.json exists with all defaults on first boot
     prepopulateConfig(overlays);
     g_cfg.save();
+
+    // Register global hotkeys now that default keys are guaranteed to be saved in config.json
+    registerHotkeys();
+
+    printf("\n" ANSI_B_RED " ====================================================================== " ANSI_RESET "\n\n");
+    
+    printf(ANSI_BOLD ANSI_B_WHITE "  iRon-Advanced " ANSI_RESET ANSI_B_RED " | " ANSI_RESET "Lightweight Overlays for iRacing\n\n");
+    
+    printf(ANSI_YELLOW "  [ INFO ] " ANSI_RESET "Most overlays are active ONLY when iRacing is running\n");
+    printf("           and your car is on the track.\n\n");
+
+    printf(ANSI_BOLD "  [ HOTKEYS ]" ANSI_RESET "\n");
+    printf("    " ANSI_B_RED ">" ANSI_RESET " Move and resize overlays : " ANSI_CYAN "[ %s ]\n" ANSI_RESET, g_cfg.getString("General","ui_edit_hotkey","").c_str() );
+    printf("    " ANSI_B_RED ">" ANSI_RESET " Toggle standings         : " ANSI_CYAN "[ %s ]\n" ANSI_RESET, g_cfg.getString("OverlayStandings","toggle_hotkey","").c_str() );
+    printf("    " ANSI_B_RED ">" ANSI_RESET " Toggle DDU               : " ANSI_CYAN "[ %s ]\n" ANSI_RESET, g_cfg.getString("OverlayDDU","toggle_hotkey","").c_str() );
+    printf("    " ANSI_B_RED ">" ANSI_RESET " Toggle inputs            : " ANSI_CYAN "[ %s ]\n" ANSI_RESET, g_cfg.getString("OverlayInputs","toggle_hotkey","").c_str() );
+    printf("    " ANSI_B_RED ">" ANSI_RESET " Toggle relative          : " ANSI_CYAN "[ %s ]\n" ANSI_RESET, g_cfg.getString("OverlayRelative","toggle_hotkey","").c_str() );
+    printf("    " ANSI_B_RED ">" ANSI_RESET " Toggle cover             : " ANSI_CYAN "[ %s ]\n" ANSI_RESET, g_cfg.getString("OverlayCover","toggle_hotkey","").c_str() );
+    printf("    " ANSI_B_RED ">" ANSI_RESET " Toggle spotter           : " ANSI_CYAN "[ %s ]\n" ANSI_RESET, g_cfg.getString("OverlaySpotter","toggle_hotkey","").c_str() );
+    printf("    " ANSI_B_RED ">" ANSI_RESET " Toggle radar             : " ANSI_CYAN "[ %s ]\n" ANSI_RESET, g_cfg.getString("OverlayRadar","toggle_hotkey","").c_str() );
+    printf("    " ANSI_B_RED ">" ANSI_RESET " Toggle incident warning  : " ANSI_CYAN "[ %s ]\n" ANSI_RESET, g_cfg.getString("OverlayIncident","toggle_hotkey","").c_str() );
+    printf("    " ANSI_B_RED ">" ANSI_RESET " Toggle tire dash         : " ANSI_CYAN "[ %s ]\n" ANSI_RESET, g_cfg.getString("OverlayTireDash","toggle_hotkey","").c_str() );
+    printf("    " ANSI_B_RED ">" ANSI_RESET " Toggle fuel calculator   : " ANSI_CYAN "[ %s ]\n" ANSI_RESET, g_cfg.getString("OverlayFuel","toggle_hotkey","").c_str() );
+    
+    printf("\n" ANSI_BOLD "  [ CONFIG ]" ANSI_RESET "\n");
+    printf("    Settings are auto-saved to " ANSI_YELLOW "Documents\\iRon_Advanced\\config.json" ANSI_RESET ".\n");
+    printf("    You can edit it manually at any time to customize aesthetics.\n");
+    
+    printf("\n    Close this window to exit.\n\n");
+    
+    printf(ANSI_B_RED " ====================================================================== " ANSI_RESET "\n\n");
 
     ConnectionStatus  status   = ConnectionStatus::UNKNOWN;
     bool              uiEdit   = false;

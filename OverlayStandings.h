@@ -166,22 +166,23 @@ protected:
                 int classDrivers = 0;
                 float expectedChange = 0.0f;
                 
-                for (const auto& cj : carInfo) {
+                for (const CarInfo& cj : carInfo) {
                     if (ci.carIdx == cj.carIdx) continue;
                     
                     const Car& otherCar = ir_session.cars[cj.carIdx];
                     if (otherCar.irating <= 0) continue;
                     if (ci.carClassId != cj.carClassId) continue;
+                    if (ci.position <= 0 || cj.position <= 0) continue; // 순위 정보가 없는 차량은 계산 배제
                     
                     classDrivers++;
                     
                     // Expected probability ci beats cj
                     float expectedProb = 1.0f / (1.0f + powf(10.0f, (otherCar.irating - myCar.irating) / 400.0f));
                     
-                    // Actual score: 1 if ci is ahead of cj, 0 if behind, 0.5 if tied
+                    // Actual score: 1 if ci is ahead of cj, 0 if behind
                     float actualScore = 0.5f;
-                    if (ci.position < cj.position && ci.position > 0) actualScore = 1.0f;
-                    else if (ci.position > cj.position && cj.position > 0) actualScore = 0.0f;
+                    if (ci.position < cj.position) actualScore = 1.0f;
+                    else if (ci.position > cj.position) actualScore = 0.0f;
                     
                     expectedChange += (actualScore - expectedProb);
                 }

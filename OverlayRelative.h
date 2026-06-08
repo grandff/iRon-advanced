@@ -197,16 +197,18 @@ class OverlayRelative : public Overlay
                         if (otherCar.userName.empty() || otherCar.isPaceCar || otherCar.isSpectator || otherCar.irating <= 0) continue;
                         if (myClass != ir_CarIdxClass.getInt(j)) continue;
                         
+                        int otherPos = ir_getPosition(j);
+                        if (myPos <= 0 || otherPos <= 0) continue; // 순위 정보가 없는 차량은 계산 배제
+                        
                         classDrivers++;
                         
                         // Expected probability i beats j
                         float expectedProb = 1.0f / (1.0f + powf(10.0f, (otherCar.irating - myCar.irating) / 400.0f));
                         
-                        // Actual score: 1 if i is ahead of j, 0 if behind, 0.5 if tied
+                        // Actual score: 1 if i is ahead of j, 0 if behind
                         float actualScore = 0.5f;
-                        int otherPos = ir_getPosition(j);
-                        if (myPos < otherPos && myPos > 0) actualScore = 1.0f;
-                        else if (myPos > otherPos && otherPos > 0) actualScore = 0.0f;
+                        if (myPos < otherPos) actualScore = 1.0f;
+                        else if (myPos > otherPos) actualScore = 0.0f;
                         
                         expectedChange += (actualScore - expectedProb);
                     }

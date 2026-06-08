@@ -50,11 +50,15 @@ protected:
         D2D1_ROUNDED_RECT rr = D2D1::RoundedRect(D2D1::RectF(x, y, x + w, y + h), 8.0f, 8.0f);
         
         Microsoft::WRL::ComPtr<ID2D1SolidColorBrush> bgBrush;
-        m_renderTarget->CreateSolidColorBrush(D2D1::ColorF(0.15f, 0.15f, 0.15f, 0.9f), &bgBrush);
+        m_renderTarget->CreateSolidColorBrush(D2D1::ColorF(0.08f, 0.08f, 0.08f, 0.85f), &bgBrush);
         m_renderTarget->FillRoundedRectangle(&rr, bgBrush.Get());
 
+        Microsoft::WRL::ComPtr<ID2D1SolidColorBrush> borderBrush;
+        m_renderTarget->CreateSolidColorBrush(D2D1::ColorF(1.0f, 1.0f, 1.0f, 0.1f), &borderBrush);
+        m_renderTarget->DrawRoundedRectangle(&rr, borderBrush.Get(), 1.0f);
+
         Microsoft::WRL::ComPtr<ID2D1SolidColorBrush> textWhite;
-        m_renderTarget->CreateSolidColorBrush(D2D1::ColorF(1.0f, 1.0f, 1.0f, 1.0f), &textWhite);
+        m_renderTarget->CreateSolidColorBrush(D2D1::ColorF(1.0f, 1.0f, 1.0f, 0.95f), &textWhite);
 
         // Title
         m_text.render(m_renderTarget.Get(), label, m_titleFormat.Get(), x, x + w, y + 15.0f, textWhite.Get(), DWRITE_TEXT_ALIGNMENT_CENTER);
@@ -71,15 +75,22 @@ protected:
             swprintf(bufTemp, _countof(bufTemp), L"%.0f\x00B0 | %.0f\x00B0 | %.0f\x00B0", tempL, tempM, tempR);
         }
 
-        // Color coding for temp (just taking middle temp as a rough gauge, 
-        // normally optimal varies wildly per car, but we'll use a generic gradient)
-        Microsoft::WRL::ComPtr<ID2D1SolidColorBrush> tempBrush;
+        // Color coding for temp (Blue = Cold, Red = Hot, Green = Optimal)
+        float4 tempCol = float4(0.15f, 0.75f, 0.15f, 0.35f); // Green
         float t = tempM;
-        if (t < 65.0f) tempBrush = GetColorBrush(0.2f, 0.6f, 1.0f); // Cold (Blue)
-        else if (t > 110.0f) tempBrush = GetColorBrush(1.0f, 0.2f, 0.2f); // Hot (Red)
-        else tempBrush = GetColorBrush(0.2f, 1.0f, 0.2f); // Optimal (Green)
+        if (t < 65.0f) {
+            tempCol = float4(0.1f, 0.45f, 0.95f, 0.35f); // Blue
+        } else if (t > 110.0f) {
+            tempCol = float4(0.9f, 0.15f, 0.15f, 0.4f); // Red
+        }
 
-        m_text.render(m_renderTarget.Get(), bufTemp, m_valFormat.Get(), x, x + w, y + 45.0f, tempBrush.Get(), DWRITE_TEXT_ALIGNMENT_CENTER);
+        // Draw Temp badge
+        D2D1_ROUNDED_RECT tempBadge = D2D1::RoundedRect(D2D1::RectF(x + 12, y + h * 0.35f, x + w - 12, y + h * 0.58f), 4.0f, 4.0f);
+        Microsoft::WRL::ComPtr<ID2D1SolidColorBrush> tempBgBrush;
+        m_renderTarget->CreateSolidColorBrush(D2D1::ColorF(tempCol.x, tempCol.y, tempCol.z, tempCol.w), &tempBgBrush);
+        m_renderTarget->FillRoundedRectangle(&tempBadge, tempBgBrush.Get());
+
+        m_text.render(m_renderTarget.Get(), bufTemp, m_valFormat.Get(), x, x + w, y + h * 0.43f, textWhite.Get(), DWRITE_TEXT_ALIGNMENT_CENTER);
 
         // Wear values formatting
         wchar_t bufWear[64];
@@ -88,14 +99,22 @@ protected:
         float wR = wearR * 100.0f;
         swprintf(bufWear, _countof(bufWear), L"%.0f%% | %.0f%% | %.0f%%", wL, wM, wR);
 
-        // Color coding for wear
-        Microsoft::WRL::ComPtr<ID2D1SolidColorBrush> wearBrush;
+        // Color coding for wear (Green = Good, Yellow = Medium, Red = Bad)
+        float4 wearCol = float4(0.15f, 0.75f, 0.15f, 0.35f); // Green
         float minWear = std::min(std::min(wL, wM), wR);
-        if (minWear > 80.0f) wearBrush = GetColorBrush(0.2f, 1.0f, 0.2f); // Good
-        else if (minWear > 40.0f) wearBrush = GetColorBrush(1.0f, 0.8f, 0.0f); // Medium
-        else wearBrush = GetColorBrush(1.0f, 0.2f, 0.2f); // Bad
+        if (minWear <= 40.0f) {
+            wearCol = float4(0.9f, 0.15f, 0.15f, 0.4f); // Red
+        } else if (minWear <= 80.0f) {
+            wearCol = float4(0.95f, 0.75f, 0.0f, 0.35f); // Yellow
+        }
 
-        m_text.render(m_renderTarget.Get(), bufWear, m_valFormat.Get(), x, x + w, y + 75.0f, wearBrush.Get(), DWRITE_TEXT_ALIGNMENT_CENTER);
+        // Draw Wear badge
+        D2D1_ROUNDED_RECT wearBadge = D2D1::RoundedRect(D2D1::RectF(x + 12, y + h * 0.65f, x + w - 12, y + h * 0.88f), 4.0f, 4.0f);
+        Microsoft::WRL::ComPtr<ID2D1SolidColorBrush> wearBgBrush;
+        m_renderTarget->CreateSolidColorBrush(D2D1::ColorF(wearCol.x, wearCol.y, wearCol.z, wearCol.w), &wearBgBrush);
+        m_renderTarget->FillRoundedRectangle(&wearBadge, wearBgBrush.Get());
+
+        m_text.render(m_renderTarget.Get(), bufWear, m_valFormat.Get(), x, x + w, y + h * 0.73f, textWhite.Get(), DWRITE_TEXT_ALIGNMENT_CENTER);
     }
 
     Microsoft::WRL::ComPtr<ID2D1SolidColorBrush> GetColorBrush(float r, float g, float b)

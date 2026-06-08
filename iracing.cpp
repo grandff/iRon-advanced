@@ -389,13 +389,11 @@ ConnectionStatus ir_tick()
     if( irsdk.wasSessionStrUpdated() )
     {
         const char* sessionYaml = irsdk.getSessionStr();
-#ifdef _DEBUG
-        //printf("%s\n", sessionYaml);
-        FILE* fp = fopen("sessionYaml.txt","ab");
-        fprintf(fp,"\n\n==== NEW SESSION STRING ======================================\n");
-        fprintf(fp,"%s",sessionYaml);
-        fclose(fp);
-#endif
+        FILE* fp = fopen("sessionYaml.txt","w");
+        if (fp) {
+            fprintf(fp,"%s",sessionYaml);
+            fclose(fp);
+        }
         char path[256];
 
         // Weekend info
@@ -502,6 +500,16 @@ ConnectionStatus ir_tick()
 
             sprintf( path, "DriverInfo:Drivers:CarIdx:{%d}ClubName:", carIdx );
             parseYamlStr( sessionYaml, path, car.clubName );
+
+            // DEBUG LOG FOR CLUBNAME
+            {
+                FILE* fdbg = fopen("club_debug.txt", "a");
+                if (fdbg) {
+                    fprintf(fdbg, "CarIdx: %d, UserName: %s, ClubName: '%s', Length: %d\n",
+                            carIdx, car.userName.c_str(), car.clubName.c_str(), (int)car.clubName.length());
+                    fclose(fdbg);
+                }
+            }
 
             sprintf( path, "DriverInfo:Drivers:CarIdx:{%d}CarClassEstLapTime:", carIdx );
             parseYamlFloat( sessionYaml, path, &car.carClassEstLapTime );

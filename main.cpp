@@ -146,7 +146,7 @@ static void registerHotkeys()
     if( parseHotkey( g_cfg.getString("OverlayTireDash","toggle_hotkey","ctrl-8"),&mod,&vk) )
         RegisterHotKey( NULL, (int)Hotkey::TireDash, mod, vk );
 
-    if( parseHotkey( g_cfg.getString("OverlayFuel","toggle_hotkey","ctrl-9"),&mod,&vk) )
+    if( parseHotkey( g_cfg.getString("OverlayFuel","toggle_hotkey","ctrl-0"),&mod,&vk) )
         RegisterHotKey( NULL, (int)Hotkey::Fuel, mod, vk );
 
     if( parseHotkey( g_cfg.getString("General","display_mode_hotkey","ctrl-shift-d"),&mod,&vk) )
@@ -203,7 +203,7 @@ static void prepopulateConfig(const std::vector<Overlay*>& overlays)
     g_cfg.getString("OverlayRadar", "toggle_hotkey", "ctrl-6");
     g_cfg.getString("OverlayIncident", "toggle_hotkey", "ctrl-7");
     g_cfg.getString("OverlayTireDash", "toggle_hotkey", "ctrl-8");
-    g_cfg.getString("OverlayFuel", "toggle_hotkey", "ctrl-9");
+    g_cfg.getString("OverlayFuel", "toggle_hotkey", "ctrl-0");
 
     for (Overlay* o : overlays)
     {

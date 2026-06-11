@@ -202,8 +202,16 @@ static void prepopulateConfig(const std::vector<Overlay*>& overlays)
     g_cfg.getString("OverlaySpotterRight", "toggle_hotkey", "ctrl-5");
     g_cfg.getString("OverlayRadar", "toggle_hotkey", "ctrl-6");
     g_cfg.getString("OverlayIncident", "toggle_hotkey", "ctrl-7");
-    g_cfg.getString("OverlayTireDash", "toggle_hotkey", "ctrl-8");
-    g_cfg.getString("OverlayFuel", "toggle_hotkey", "ctrl-0");
+
+    // Load keys first
+    std::string tireDashKey = g_cfg.getString("OverlayTireDash", "toggle_hotkey", "ctrl-8");
+    std::string fuelKey = g_cfg.getString("OverlayFuel", "toggle_hotkey", "ctrl-0");
+
+    // Resolve conflict if both were set to ctrl-9 due to previous version defaults
+    if (tireDashKey == "ctrl-9" && fuelKey == "ctrl-9") {
+        g_cfg.setString("OverlayTireDash", "toggle_hotkey", "ctrl-8");
+        g_cfg.setString("OverlayFuel", "toggle_hotkey", "ctrl-0");
+    }
 
     for (Overlay* o : overlays)
     {

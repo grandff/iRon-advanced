@@ -501,12 +501,48 @@ ConnectionStatus ir_tick()
             sprintf( path, "DriverInfo:Drivers:CarIdx:{%d}ClubName:", carIdx );
             parseYamlStr( sessionYaml, path, car.clubName );
 
-            // DEBUG LOG FOR CLUBNAME
+            // DEBUG LOG FOR DRIVER DATA
             {
-                FILE* fdbg = fopen("club_debug.txt", "a");
+                std::string ronDir = getRonDir();
+                std::string logPath = "club_debug.txt";
+                if (!ronDir.empty()) {
+                    logPath = ronDir + "club_debug.txt";
+                }
+                FILE* fdbg = fopen(logPath.c_str(), carIdx == 0 ? "w" : "a");
                 if (fdbg) {
-                    fprintf(fdbg, "CarIdx: %d, UserName: %s, ClubName: '%s', Length: %d\n",
-                            carIdx, car.userName.c_str(), car.clubName.c_str(), (int)car.clubName.length());
+                    std::string ccodeStr, cnameStr, countryStr, natStr;
+                    int ccodeInt = -1;
+                    char dpath[256];
+                    
+                    sprintf(dpath, "DriverInfo:Drivers:CarIdx:{%d}CountryCode:", carIdx);
+                    parseYamlStr(sessionYaml, dpath, ccodeStr);
+                    parseYamlInt(sessionYaml, dpath, &ccodeInt);
+                    
+                    sprintf(dpath, "DriverInfo:Drivers:CarIdx:{%d}CountryName:", carIdx);
+                    parseYamlStr(sessionYaml, dpath, cnameStr);
+                    
+                    sprintf(dpath, "DriverInfo:Drivers:CarIdx:{%d}Country:", carIdx);
+                    parseYamlStr(sessionYaml, dpath, countryStr);
+
+                    sprintf(dpath, "DriverInfo:Drivers:CarIdx:{%d}Nationality:", carIdx);
+                    parseYamlStr(sessionYaml, dpath, natStr);
+
+                    fprintf(fdbg, "CarIdx: %d | UserName: %s\n", carIdx, car.userName.c_str());
+                    fprintf(fdbg, "  ClubName    : '%s'\n", car.clubName.c_str());
+                    fprintf(fdbg, "  CountryCode (Str): '%s' | (Int): %d\n", ccodeStr.c_str(), ccodeInt);
+                    fprintf(fdbg, "  CountryName : '%s'\n", cnameStr.c_str());
+                    fprintf(fdbg, "  Country     : '%s'\n", countryStr.c_str());
+                    fprintf(fdbg, "  Nationality : '%s'\n", natStr.c_str());
+                    
+                    if (carIdx == 0) {
+                        const char* driversPos = strstr(sessionYaml, "Drivers:");
+                        if (driversPos) {
+                            fprintf(fdbg, "\n--- RAW DRIVERS YAML START ---\n");
+                            // write first 2000 chars of Drivers:
+                            fwrite(driversPos, 1, 2000, fdbg);
+                            fprintf(fdbg, "\n--- RAW DRIVERS YAML END ---\n\n");
+                        }
+                    }
                     fclose(fdbg);
                 }
             }

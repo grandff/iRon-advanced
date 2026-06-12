@@ -49,6 +49,7 @@ SOFTWARE.
 #include "OverlayIncident.h"
 #include "OverlayTraffic.h"
 #include "OverlayTireDash.h"
+#include "OverlayH2H.h"
 #include "TelemetryLogger.h"
 
 #define printf printf_to_log_and_console
@@ -96,6 +97,7 @@ enum class Hotkey
     Incident,
     TireDash,
     Fuel,
+    H2H,
     DisplayMode
 };
 
@@ -112,6 +114,7 @@ static void registerHotkeys()
     UnregisterHotKey( NULL, (int)Hotkey::Incident );
     UnregisterHotKey( NULL, (int)Hotkey::TireDash );
     UnregisterHotKey( NULL, (int)Hotkey::Fuel );
+    UnregisterHotKey( NULL, (int)Hotkey::H2H );
     UnregisterHotKey( NULL, (int)Hotkey::DisplayMode );
 
     UINT vk, mod;
@@ -148,6 +151,9 @@ static void registerHotkeys()
 
     if( parseHotkey( g_cfg.getString("OverlayFuel","toggle_hotkey","ctrl-0"),&mod,&vk) )
         RegisterHotKey( NULL, (int)Hotkey::Fuel, mod, vk );
+
+    if( parseHotkey( g_cfg.getString("OverlayH2H","toggle_hotkey","ctrl-9"),&mod,&vk) )
+        RegisterHotKey( NULL, (int)Hotkey::H2H, mod, vk );
 
     if( parseHotkey( g_cfg.getString("General","display_mode_hotkey","ctrl-shift-d"),&mod,&vk) )
         RegisterHotKey( NULL, (int)Hotkey::DisplayMode, mod, vk );
@@ -206,6 +212,7 @@ static void prepopulateConfig(const std::vector<Overlay*>& overlays)
     // Load keys first
     std::string tireDashKey = g_cfg.getString("OverlayTireDash", "toggle_hotkey", "ctrl-8");
     std::string fuelKey = g_cfg.getString("OverlayFuel", "toggle_hotkey", "ctrl-0");
+    g_cfg.getString("OverlayH2H", "toggle_hotkey", "ctrl-9");
 
     // Resolve conflict if both were set to ctrl-9 due to previous version defaults
     if (tireDashKey == "ctrl-9" && fuelKey == "ctrl-9") {
@@ -273,6 +280,7 @@ int main()
     overlays.push_back( new OverlayIncident() );
     overlays.push_back( new OverlayTraffic() );
     overlays.push_back( new OverlayTireDash() );
+    overlays.push_back( new OverlayH2H() );
 #ifdef _DEBUG
     overlays.push_back( new OverlayDebug() );
 #endif
@@ -303,6 +311,7 @@ int main()
     printf("    " ANSI_B_RED ">" ANSI_RESET " Toggle incident warning  : " ANSI_CYAN "[ %s ]\n" ANSI_RESET, g_cfg.getString("OverlayIncident","toggle_hotkey","").c_str() );
     printf("    " ANSI_B_RED ">" ANSI_RESET " Toggle tire dash         : " ANSI_CYAN "[ %s ]\n" ANSI_RESET, g_cfg.getString("OverlayTireDash","toggle_hotkey","").c_str() );
     printf("    " ANSI_B_RED ">" ANSI_RESET " Toggle fuel calculator   : " ANSI_CYAN "[ %s ]\n" ANSI_RESET, g_cfg.getString("OverlayFuel","toggle_hotkey","").c_str() );
+    printf("    " ANSI_B_RED ">" ANSI_RESET " Toggle Head to Head      : " ANSI_CYAN "[ %s ]\n" ANSI_RESET, g_cfg.getString("OverlayH2H","toggle_hotkey","").c_str() );
     
     printf("\n" ANSI_BOLD "  [ CONFIG ]" ANSI_RESET "\n");
     printf("    Settings are auto-saved to " ANSI_YELLOW "Documents\\iRon_Advanced\\config.json" ANSI_RESET ".\n");
@@ -510,6 +519,9 @@ int main()
                         break;
                     case (int)Hotkey::Fuel:
                         g_cfg.setBool( "OverlayFuel", "enabled", !g_cfg.getBool("OverlayFuel","enabled",true) );
+                        break;
+                    case (int)Hotkey::H2H:
+                        g_cfg.setBool( "OverlayH2H", "enabled", !g_cfg.getBool("OverlayH2H","enabled",true) );
                         break;
                     case (int)Hotkey::DisplayMode:
                         {

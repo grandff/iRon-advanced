@@ -31,6 +31,7 @@ iRacing을 위한 가볍고 강력한 확장 오버레이<br><br>
 * **Proximity Radar (근접 레이더) (NEW):** 내 차를 기준으로 주변 차량을 탑다운 뷰로 보여주는 레이더입니다. 주변에 차가 없을 때는 시야 확보를 위해 배경조차 그리지 않는 완전 투명 상태가 기본입니다.
 * **Incident Warning (사고 경고) (NEW):** 전방 150미터 이내에서 차가 트랙을 벗어나거나 충돌한 것이 감지되면, 사고 지점까지의 정확한 거리와 함께 깜박이는 경고 배너를 띄워 대처를 돕습니다.
 * **Multiclass Traffic (멀티클래스) (NEW):** 나보다 빠른 클래스의 상위 클래스 차량이 뒤에서 접근할 때 시야를 방해하지 않는 은은한 블루/화이트 글로우 UI와 텍스트로 미리 양보를 준비할 수 있게 알려줍니다.
+* **Head to Head (1대1 경쟁 상태) (NEW):** 앞뒤 차량과의 간격 및 섹터 기록을 비교하여 실시간 경쟁 상황을 파악할 수 있는 위젯입니다.
 
 ---
 
@@ -47,6 +48,7 @@ iRacing을 위한 가볍고 강력한 확장 오버레이<br><br>
   - [*Radar (레이더) (NEW)*](#radar-레이더-new)
   - [*Incident Warning (사고 경고) (NEW)*](#incident-warning-사고-경고-new)
   - [*Multiclass Traffic (멀티클래스) (NEW)*](#multiclass-traffic-멀티클래스-new)
+  - [*Head to Head (1대1 경쟁 상태) (NEW)*](#head-to-head-1대1-경쟁-상태-new)
 - [설치 및 실행](#-설치-및-실행)
 - [설정 변경 (Configuration)](#️-설정-변경-configuration)
 - [소스 코드에서 빌드하기](#️-소스-코드에서-빌드하기)
@@ -112,6 +114,9 @@ iRacing에서 여러 블랙박스를 넘겨봐야 알 수 있는 중요한 정�
 
 ![traffic](../../screenshot_placeholder_traffic.png)
 
+### *Head to Head (1대1 경쟁 상태) (NEW)*
+앞뒤 차량과의 간격 및 섹터 기록을 비교하여 실시간 경쟁 상황을 파악할 수 있는 위젯입니다.
+
 ---
 
 ## 🚀 설치 및 실행
@@ -140,7 +145,8 @@ iRacing을 켜기 전이나 후 언제 실행하든 상관없습니다. iRon이 
 * **Ctrl-6**: 근접 레이더(Radar) 토글
 * **Ctrl-7**: 전방 사고 경고(Incident) 토글
 * **Ctrl-8**: 타이어 대시(Tire Dash) 토글
-* **Ctrl-9**: 미니 연료 위젯(Fuel) 토글
+* **Ctrl-9**: 1대1 경쟁 상태(Head to Head) 토글
+* **Ctrl-0**: 미니 연료 위젯(Fuel) 토글
 * **Ctrl-Shift-D**: 글로벌 표시 모드 변경 (레이스 시에만 노출 / 리플레이 시에만 노출 / 항상 노출)
 
 ---

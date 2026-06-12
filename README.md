@@ -47,6 +47,7 @@ This project is a heavily expanded version of the original `iRon` overlay. While
   - [*Radar (NEW)*](#radar-new)
   - [*Incident Warning (NEW)*](#incident-warning-new)
   - [*Multiclass Traffic (NEW)*](#multiclass-traffic-new)
+  - [*Head to Head (NEW)*](#head-to-head-new)
 - [Installing & Running](#-installing--running)
 - [Configuration](#️-configuration)
 - [Building from Source](#️-building-from-source)
@@ -112,6 +113,11 @@ A dynamic blue-flag warning system for multiclass racing. It compares the estima
 
 ![traffic](screenshot_placeholder_traffic.png)
 
+### *Head to Head (NEW)*
+Shows real-time comparisons with the drivers immediately in front and behind you. Shows position, name, gap, lap times, and sector times (S1, S2, S3) of the last completed lap.
+* Highly useful to monitor where you are losing or gaining time compared to your immediate rivals.
+* Features a prominent highlight band for your own row.
+
 ---
 
 ## 🚀 Installing & Running
@@ -142,7 +148,8 @@ Your layout and settings are automatically and globally saved to:
 * **Ctrl-6**: Toggle Proximity Radar
 * **Ctrl-7**: Toggle Incident Warning
 * **Ctrl-8**: Toggle Tire Dash
-* **Ctrl-9**: Toggle Mini Fuel Widget
+* **Ctrl-9**: Toggle Head to Head Widget
+* **Ctrl-0**: Toggle Mini Fuel Widget
 * **Ctrl-Shift-D**: Cycle Global Display Mode (Race Only / Replay Only / Both)
 
 ---

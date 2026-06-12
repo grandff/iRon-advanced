@@ -552,15 +552,15 @@ inline std::wstring getCountryCode(const std::string& rawClubName) {
     for (char &c : lowerClub) {
         if (c >= 'A' && c <= 'Z') c = c - 'A' + 'a';
     }
-    if (lowerClub.empty() || lowerClub.rfind("non-", 0) == 0 || lowerClub == "none" || lowerClub == "non") {
+    if (lowerClub.empty() || lowerClub.rfind("non-", 0) == 0 || lowerClub == "none" || lowerClub == "non" || lowerClub == "-none-") {
         return L"GL";
     }
     
-    if (lowerClub == "korea") return L"KR";
-    if (lowerClub == "japan") return L"JP";
-    if (lowerClub == "united states" || lowerClub == "usa") return L"US";
-    if (lowerClub == "deutschland" || lowerClub == "germany") return L"DE";
-    if (lowerClub == "united kingdom" || lowerClub == "uk" || lowerClub == "celtic") return L"GB";
+    if (lowerClub == "korea" || lowerClub.find("korea") != std::string::npos) return L"KR";
+    if (lowerClub == "japan" || lowerClub.find("japan") != std::string::npos) return L"JP";
+    if (lowerClub == "united states" || lowerClub == "usa" || lowerClub.find("states") != std::string::npos || lowerClub.find("america") != std::string::npos) return L"US";
+    if (lowerClub == "deutschland" || lowerClub == "germany" || lowerClub.find("germany") != std::string::npos || lowerClub.find("deutschland") != std::string::npos) return L"DE";
+    if (lowerClub == "united kingdom" || lowerClub == "uk" || lowerClub == "celtic" || lowerClub.find("kingdom") != std::string::npos || lowerClub.find("england") != std::string::npos || lowerClub.find("scotland") != std::string::npos || lowerClub.find("wales") != std::string::npos) return L"GB";
     if (lowerClub == "france") return L"FR";
     if (lowerClub == "italy") return L"IT";
     if (lowerClub == "spain") return L"ES";
@@ -571,13 +571,18 @@ inline std::wstring getCountryCode(const std::string& rawClubName) {
     if (lowerClub == "sweden") return L"SE";
     if (lowerClub == "finland") return L"FI";
     if (lowerClub == "belgium") return L"BE";
-    if (lowerClub == "austria" || lowerClub == "switzerland") return L"AT";
-    
-    if (lowerClub.find("korea") != std::string::npos) return L"KR";
-    if (lowerClub.find("japan") != std::string::npos) return L"JP";
-    if (lowerClub.find("america") != std::string::npos || lowerClub.find("states") != std::string::npos) return L"US";
-    if (lowerClub.find("germany") != std::string::npos || lowerClub.find("deutschland") != std::string::npos) return L"DE";
-    if (lowerClub.find("celtic") != std::string::npos || lowerClub.find("uk") != std::string::npos || lowerClub.find("england") != std::string::npos) return L"GB";
+    if (lowerClub == "austria") return L"AT";
+    if (lowerClub == "switzerland") return L"CH";
+    if (lowerClub == "norway") return L"NO";
+    if (lowerClub == "denmark") return L"DK";
+    if (lowerClub == "croatia") return L"HR";
+    if (lowerClub == "poland") return L"PL";
+    if (lowerClub == "turkey" || lowerClub == "türkiye") return L"TR";
+    if (lowerClub == "malaysia") return L"MY";
+    if (lowerClub == "portugal") return L"PT";
+    if (lowerClub == "china") return L"CN";
+    if (lowerClub == "hong kong") return L"HK";
+    if (lowerClub == "taiwan") return L"TW";
     
     if (clubName.length() >= 2) {
         std::wstring wname = toWide(clubName);
@@ -596,15 +601,15 @@ inline std::wstring getCountryCode3(const std::string& rawClubName) {
     for (char &c : lowerClub) {
         if (c >= 'A' && c <= 'Z') c = c - 'A' + 'a';
     }
-    if (lowerClub.empty() || lowerClub.rfind("non-", 0) == 0 || lowerClub == "none" || lowerClub == "non") {
+    if (lowerClub.empty() || lowerClub.rfind("non-", 0) == 0 || lowerClub == "none" || lowerClub == "non" || lowerClub == "-none-") {
         return L"GLB";
     }
     
-    if (lowerClub == "korea") return L"KOR";
-    if (lowerClub == "japan") return L"JPN";
-    if (lowerClub == "united states" || lowerClub == "usa") return L"USA";
-    if (lowerClub == "deutschland" || lowerClub == "germany") return L"GER";
-    if (lowerClub == "united kingdom" || lowerClub == "uk" || lowerClub == "celtic") return L"GBR";
+    if (lowerClub == "korea" || lowerClub.find("korea") != std::string::npos) return L"KOR";
+    if (lowerClub == "japan" || lowerClub.find("japan") != std::string::npos) return L"JPN";
+    if (lowerClub == "united states" || lowerClub == "usa" || lowerClub.find("states") != std::string::npos || lowerClub.find("america") != std::string::npos) return L"USA";
+    if (lowerClub == "deutschland" || lowerClub == "germany" || lowerClub.find("germany") != std::string::npos || lowerClub.find("deutschland") != std::string::npos) return L"GER";
+    if (lowerClub == "united kingdom" || lowerClub == "uk" || lowerClub == "celtic" || lowerClub.find("kingdom") != std::string::npos || lowerClub.find("england") != std::string::npos || lowerClub.find("scotland") != std::string::npos || lowerClub.find("wales") != std::string::npos) return L"GBR";
     if (lowerClub == "france") return L"FRA";
     if (lowerClub == "italy") return L"ITA";
     if (lowerClub == "spain") return L"ESP";
@@ -617,12 +622,16 @@ inline std::wstring getCountryCode3(const std::string& rawClubName) {
     if (lowerClub == "belgium") return L"BEL";
     if (lowerClub == "austria") return L"AUT";
     if (lowerClub == "switzerland") return L"CHE";
-    
-    if (lowerClub.find("korea") != std::string::npos) return L"KOR";
-    if (lowerClub.find("japan") != std::string::npos) return L"JPN";
-    if (lowerClub.find("america") != std::string::npos || lowerClub.find("states") != std::string::npos) return L"USA";
-    if (lowerClub.find("germany") != std::string::npos || lowerClub.find("deutschland") != std::string::npos) return L"GER";
-    if (lowerClub.find("celtic") != std::string::npos || lowerClub.find("uk") != std::string::npos || lowerClub.find("england") != std::string::npos) return L"GBR";
+    if (lowerClub == "norway") return L"NOR";
+    if (lowerClub == "denmark") return L"DEN";
+    if (lowerClub == "croatia") return L"CRO";
+    if (lowerClub == "poland") return L"POL";
+    if (lowerClub == "turkey" || lowerClub == "türkiye") return L"TUR";
+    if (lowerClub == "malaysia") return L"MAS";
+    if (lowerClub == "portugal") return L"POR";
+    if (lowerClub == "china") return L"CHN";
+    if (lowerClub == "hong kong") return L"HKG";
+    if (lowerClub == "taiwan") return L"TWN";
     
     std::wstring wname = toWide(clubName);
     if (wname.length() >= 3) {
@@ -630,12 +639,6 @@ inline std::wstring getCountryCode3(const std::string& rawClubName) {
         code += towupper(wname[0]);
         code += towupper(wname[1]);
         code += towupper(wname[2]);
-        return code;
-    } else if (wname.length() == 2) {
-        std::wstring code = L"";
-        code += towupper(wname[0]);
-        code += towupper(wname[1]);
-        code += L" ";
         return code;
     }
     

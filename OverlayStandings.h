@@ -326,7 +326,7 @@ protected:
                 clm = m_columns.get( (int)Columns::NAME );
                 
                 // Get 3-letter Country Initial
-                std::wstring countryCode = getCountryCode3(car.clubName);
+                std::wstring countryCode = getCountryCode3(car.flairName);
                 
                 // Draw Country Badge rounded rect
                 D2D1_RECT_F badgeRect = { xoff+clm->textL, y-lineHeight/2 + 2, xoff+clm->textL + 38, y+lineHeight/2 - 2 };

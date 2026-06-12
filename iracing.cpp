@@ -498,8 +498,8 @@ ConnectionStatus ir_tick()
             sprintf( path, "DriverInfo:Drivers:CarIdx:{%d}CarScreenNameShort:", carIdx );
             parseYamlStr( sessionYaml, path, car.carName );
 
-            sprintf( path, "DriverInfo:Drivers:CarIdx:{%d}ClubName:", carIdx );
-            parseYamlStr( sessionYaml, path, car.clubName );
+            sprintf( path, "DriverInfo:Drivers:CarIdx:{%d}FlairName:", carIdx );
+            parseYamlStr( sessionYaml, path, car.flairName );
 
             // DEBUG LOG FOR DRIVER DATA
             {
@@ -528,7 +528,7 @@ ConnectionStatus ir_tick()
                     parseYamlStr(sessionYaml, dpath, natStr);
 
                     fprintf(fdbg, "CarIdx: %d | UserName: %s\n", carIdx, car.userName.c_str());
-                    fprintf(fdbg, "  ClubName    : '%s'\n", car.clubName.c_str());
+                    fprintf(fdbg, "  FlairName   : '%s'\n", car.flairName.c_str());
                     fprintf(fdbg, "  CountryCode (Str): '%s' | (Int): %d\n", ccodeStr.c_str(), ccodeInt);
                     fprintf(fdbg, "  CountryName : '%s'\n", cnameStr.c_str());
                     fprintf(fdbg, "  Country     : '%s'\n", countryStr.c_str());

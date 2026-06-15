@@ -3,7 +3,7 @@
 <h1>iRon-Advanced</h1>
 Lightweight and powerful expanded overlays for iRacing<br><br>
 
-**English** | [**English (UK)**](./docs/en-GB/README.md) | [**한국어**](./docs/ko/README.md) | [**日本語**](./docs/ja/README.md) | [**简体中文**](./docs/zh/README.md) | [**Deutsch**](./docs/de/README.md) | [**Français**](./docs/fr/README.md) | [**Italiano**](./docs/it/README.md) | [**Português**](./docs/pt/README.md) | [**Русский**](./docs/ru/README.md)
+[**English**](../../README.md) | **English (UK)** | [**한국어**](../ko/README.md) | [**日本語**](../ja/README.md) | [**简体中文**](../zh/README.md) | [**Deutsch**](../de/README.md) | [**Français**](../fr/README.md) | [**Italiano**](../it/README.md) | [**Português**](../pt/README.md) | [**Русский**](../ru/README.md)
 
 </div>
 
@@ -22,7 +22,7 @@ This project is a heavily expanded version of the original `iRon` overlay. While
 * **iRon-Advanced** saves your screen coordinate layout, window sizes, and overlay toggle states (On/Off) in the Windows `Documents\iRon_Advanced\config.json` path. When re-launched, your last layout is perfectly restored!
 
 **2. 📊 Enhanced Standings & Telemetry**
-* Added a **3-letter Country Initial Badge** (e.g., `[KOR]`, `[USA]`) right before the driver names in the Standings overlay to quickly recognize competitors' origins.
+* Added a **3-letter Country Initial Badge** (e.g., `[KOR]`, `[USA]`) right before the driver names in the Standings overlay to quickly recognise competitors' origins.
 * Cleaned up redundant car model texts for an extremely professional, clutter-free look.
 * Added **real-time Expected iRating changes (+/-)** based on the Elo rating system directly to the Relative overlay.
 
@@ -65,64 +65,75 @@ The latest binary release can be found [here](https://github.com/lespalt/iRon/re
 ## 📺 Overlays
 
 ### *Relative*
-Like the *Relative* box in iRacing, but with additional information such as license, iRating, laps driven since the last pit stop, and **real-time Expected iRating changes** for current class participants. You can also highlight your friends by adding their names to a buddy list.
-At the top is an optional minimap. It can be set to either relative mode (own car fixed in the center) or absolute mode (start/finish line fixed in the center).
+
+Like the *Relative* box in iRacing, but with additional information such as licence, iRating, laps driven since the last pit stop, and **real-time Expected iRating changes** for current class participants. You can also highlight your friends by adding their names to a buddy list.
+At the top is an optional minimap. It can be set to either relative mode (own car fixed in the centre) or absolute mode (start/finish line fixed in the centre).
 
 ![relative](https://github.com/lespalt/iRon/blob/main/relative.png?raw=true)
 
 ### *DDU*
+
 A dashboard that concentrates important pieces of information for which you would otherwise have to flip through various boxes in iRacing.
 The fuel calculator shows the estimated remaining laps, remaining amount of fuel, estimated fuel used per lap, estimated _additional_ fuel required to finish the race, and the fuel amount that is scheduled to be added on the next pit stop.
 
 ![ddu](https://github.com/lespalt/iRon/blob/main/ddu.png?raw=true)
 
 ### *Inputs*
-Shows throttle/brake/steering in a moving graph. Extremely useful to practice consistent trail braking.
+
+Shows throttle/brake/steering in a moving graph. Extremely useful to practise consistent trail braking.
 
 ![inputs](https://github.com/lespalt/iRon/blob/main/inputs.png?raw=true)
 
 ### *Standings*
+
 Shows the standings of the entire field, including safety rating, iRating, number of laps since the last pit stop ("pit age"), and a clean **Country Initial Badge** left of every driver's name. Mainly useful during caution periods or pre-race to get a sense of the competition level.
 
 ![standings](https://github.com/lespalt/iRon/blob/main/standings.png?raw=true)
 
 ### *Cover*
+
 We skip the screenshot for this one. It is a simple blank black rectangle, useful to cover up distracting in-game dashboards like the one in the next-gen NASCAR.
 
 ### *Spotter (NEW)*
-A visual spotter that draws colored rectangles on the left and right sides of your screen when a car is in your blind spot.
+
+A visual spotter that draws coloured rectangles on the left and right sides of your screen when a car is in your blind spot.
 * Left and Right panels are **independently configurable, movable, and resizable**.
 * Displays a **Yellow** caution bar for nearby cars, and shifts to a bright **Red** alert bar if a car gets dangerously close (<= 2.2m).
 * Completely transparent by default, becoming semi-transparent only when layout editing is active.
 
-![spotter](screenshot_placeholder_spotter.png)
+![spotter](../../screenshot_placeholder_spotter.png)
 
 ### *Radar (NEW)*
+
 A proximity radar rendering a top-down view of cars around you.
 * Remains 100% transparent by default when no cars are nearby to maintain screen clarity.
 * Activates and renders a top-down view of surrounding vehicles once they enter close range.
 
-![radar](screenshot_placeholder_radar.png)
+![radar](../../screenshot_placeholder_radar.png)
 
 ### *Incident Warning (NEW)*
-A smart incident warning system. Instead of just showing a generic yellow flag banner, this overlay calculates if a car ahead of you has gone off-track during a caution. If a crashed or off-track car is detected within 150 meters ahead, it renders a prominent blinking warning banner specifying the distance to the crash.
 
-![incident](screenshot_placeholder_incident.png)
+A smart incident warning system. Instead of just showing a generic yellow flag banner, this overlay calculates if a car ahead of you has gone off-track during a caution. If a crashed or off-track car is detected within 150 metres ahead, it renders a prominent blinking warning banner specifying the distance to the crash.
+
+![incident](../../screenshot_placeholder_incident.png)
 
 ### *Multiclass Traffic (NEW)*
+
 A dynamic blue-flag warning system for multiclass racing. It compares the estimated lap times of surrounding cars to yours. If a faster class car approaches within a critical time gap from behind, it triggers a progressive glow UI that flashes intensely blue/white to warn you without blocking your vision.
 
-![traffic](screenshot_placeholder_traffic.png)
+![traffic](../../screenshot_placeholder_traffic.png)
 
 ### *Head to Head (NEW)*
+
 Shows real-time comparisons with the drivers immediately in front and behind you. Shows position, name, gap, lap times, and sector times (S1, S2, S3) of the last completed lap.
 * Highly useful to monitor where you are losing or gaining time compared to your immediate rivals.
 * Features a prominent highlight band for your own row.
 
 ### *Bomb Avenge (NEW)*
+
 Displays real-time tracking information of the driver who hit you.
 * Automatically triggers when a collision increases your incident count.
-* Shows the offender's name, their current race position, and the real-time distance gap in meters.
+* Shows the offender's name, their current race position, and the real-time distance gap in metres.
 * In the *Relative* overlay, the offending driver's row will pulse red, their car number background will turn red, and their name will be prefixed with `[BOMB]`.
 
 ---
@@ -154,7 +165,7 @@ Your layout and settings are automatically and globally saved to:
 * **Ctrl-5**: Toggle Spotters (Left/Right synced)
 * **Ctrl-6**: Toggle Proximity Radar
 * **Ctrl-7**: Toggle Incident Warning
-* **Ctrl-8**: Toggle Tire Dash
+* **Ctrl-8**: Toggle Tyre Dash
 * **Ctrl-9**: Toggle Head to Head Widget
 * **Ctrl-0**: Toggle Bomb Avenge Widget
 * **Ctrl-Shift-D**: Cycle Global Display Mode (Race Only / Replay Only / Both)

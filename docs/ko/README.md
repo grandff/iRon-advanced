@@ -3,7 +3,7 @@
 <h1>iRon-Advanced</h1>
 iRacing을 위한 가볍고 강력한 확장 오버레이<br><br>
 
-[**English**](../../README.md) | **한국어**
+[**English**](../../README.md) | [**English (UK)**](../en-GB/README.md) | **한국어** | [**日本語**](../ja/README.md) | [**简体中文**](../zh/README.md) | [**Deutsch**](../de/README.md) | [**Français**](../fr/README.md) | [**Italiano**](../it/README.md) | [**Português**](../pt/README.md) | [**Русский**](../ru/README.md)
 
 </div>
 
@@ -32,6 +32,7 @@ iRacing을 위한 가볍고 강력한 확장 오버레이<br><br>
 * **Incident Warning (사고 경고) (NEW):** 전방 150미터 이내에서 차가 트랙을 벗어나거나 충돌한 것이 감지되면, 사고 지점까지의 정확한 거리와 함께 깜박이는 경고 배너를 띄워 대처를 돕습니다.
 * **Multiclass Traffic (멀티클래스) (NEW):** 나보다 빠른 클래스의 상위 클래스 차량이 뒤에서 접근할 때 시야를 방해하지 않는 은은한 블루/화이트 글로우 UI와 텍스트로 미리 양보를 준비할 수 있게 알려줍니다.
 * **Head to Head (1대1 경쟁 상태) (NEW):** 앞뒤 차량과의 간격 및 섹터 기록을 비교하여 실시간 경쟁 상황을 파악할 수 있는 위젯입니다.
+* **Bomb Avenge (충돌 차량 복수 추적) (NEW):** 나한테 부딪혀 사고를 유발한 드라이버의 이름, 순위 및 거리를 실시간 추적하고 Relative 오버레이에 붉은색으로 강조 표시합니다.
 
 ---
 
@@ -49,6 +50,7 @@ iRacing을 위한 가볍고 강력한 확장 오버레이<br><br>
   - [*Incident Warning (사고 경고) (NEW)*](#incident-warning-사고-경고-new)
   - [*Multiclass Traffic (멀티클래스) (NEW)*](#multiclass-traffic-멀티클래스-new)
   - [*Head to Head (1대1 경쟁 상태) (NEW)*](#head-to-head-1대1-경쟁-상태-new)
+  - [*Bomb Avenge (충돌 차량 복수 추적) (NEW)*](#bomb-avenge-충돌-차량-복수-추적-new)
 - [설치 및 실행](#-설치-및-실행)
 - [설정 변경 (Configuration)](#️-설정-변경-configuration)
 - [소스 코드에서 빌드하기](#️-소스-코드에서-빌드하기)
@@ -117,6 +119,13 @@ iRacing에서 여러 블랙박스를 넘겨봐야 알 수 있는 중요한 정�
 ### *Head to Head (1대1 경쟁 상태) (NEW)*
 앞뒤 차량과의 간격 및 섹터 기록을 비교하여 실시간 경쟁 상황을 파악할 수 있는 위젯입니다.
 
+### *Bomb Avenge (충돌 차량 복수 추적) (NEW)*
+나한테 부딪혀 사고를 유발한 가해 드라이버의 실시간 위치와 거리를 추적하는 복수용 위젯입니다.
+* 평소에는 화면에 전혀 나타나지 않습니다.
+* 상대 차량과의 충돌로 인해 내 Incident 카운트가 증가하는 즉시 활성화됩니다.
+* 가해 드라이버의 이름, 실시간 레이스 순위, 그리고 나와의 실시간 거리 차이(미터)를 실시간으로 갱신하여 표시합니다.
+* Relative 오버레이에서도 해당 드라이버의 행이 붉은색으로 깜빡이며 강조되고, 엔트리 번호 배경이 빨간색으로 변경되며, 이름 앞에 `[BOMB]` 접두사가 부착됩니다.
+
 ---
 
 ## 🚀 설치 및 실행
@@ -146,7 +155,7 @@ iRacing을 켜기 전이나 후 언제 실행하든 상관없습니다. iRon이 
 * **Ctrl-7**: 전방 사고 경고(Incident) 토글
 * **Ctrl-8**: 타이어 대시(Tire Dash) 토글
 * **Ctrl-9**: 1대1 경쟁 상태(Head to Head) 토글
-* **Ctrl-0**: 미니 연료 위젯(Fuel) 토글
+* **Ctrl-0**: 충돌 차량 추적 위젯(Bomb Avenge) 토글
 * **Ctrl-Shift-D**: 글로벌 표시 모드 변경 (레이스 시에만 노출 / 리플레이 시에만 노출 / 항상 노출)
 
 ---

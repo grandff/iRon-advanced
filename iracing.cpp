@@ -24,6 +24,8 @@ SOFTWARE.
 
 #include "iracing.h"
 #include "Config.h"
+#include <cmath>
+#include <algorithm>
 
 #define printf printf_to_log_and_console
 
@@ -322,6 +324,7 @@ irsdkCVar ir_LFSHshockVel("LFSHshockVel");    // float[1] LFSH shock velocity (m
 irsdkCVar ir_LFSHshockVel_ST("LFSHshockVel_ST");    // float[6] LFSH shock velocity at 360 Hz (m/s)
 
 Session ir_session;
+CollisionInfo g_lastCollision;
 
 static bool parseYamlInt(const char *yamlStr, const char *path, int *dest)
 {
@@ -389,11 +392,6 @@ ConnectionStatus ir_tick()
     if( irsdk.wasSessionStrUpdated() )
     {
         const char* sessionYaml = irsdk.getSessionStr();
-        FILE* fp = fopen("sessionYaml.txt","w");
-        if (fp) {
-            fprintf(fp,"%s",sessionYaml);
-            fclose(fp);
-        }
         char path[256];
 
         // Weekend info
@@ -501,51 +499,7 @@ ConnectionStatus ir_tick()
             sprintf( path, "DriverInfo:Drivers:CarIdx:{%d}FlairName:", carIdx );
             parseYamlStr( sessionYaml, path, car.flairName );
 
-            // DEBUG LOG FOR DRIVER DATA
-            {
-                std::string ronDir = getRonDir();
-                std::string logPath = "club_debug.txt";
-                if (!ronDir.empty()) {
-                    logPath = ronDir + "club_debug.txt";
-                }
-                FILE* fdbg = fopen(logPath.c_str(), carIdx == 0 ? "w" : "a");
-                if (fdbg) {
-                    std::string ccodeStr, cnameStr, countryStr, natStr;
-                    int ccodeInt = -1;
-                    char dpath[256];
-                    
-                    sprintf(dpath, "DriverInfo:Drivers:CarIdx:{%d}CountryCode:", carIdx);
-                    parseYamlStr(sessionYaml, dpath, ccodeStr);
-                    parseYamlInt(sessionYaml, dpath, &ccodeInt);
-                    
-                    sprintf(dpath, "DriverInfo:Drivers:CarIdx:{%d}CountryName:", carIdx);
-                    parseYamlStr(sessionYaml, dpath, cnameStr);
-                    
-                    sprintf(dpath, "DriverInfo:Drivers:CarIdx:{%d}Country:", carIdx);
-                    parseYamlStr(sessionYaml, dpath, countryStr);
 
-                    sprintf(dpath, "DriverInfo:Drivers:CarIdx:{%d}Nationality:", carIdx);
-                    parseYamlStr(sessionYaml, dpath, natStr);
-
-                    fprintf(fdbg, "CarIdx: %d | UserName: %s\n", carIdx, car.userName.c_str());
-                    fprintf(fdbg, "  FlairName   : '%s'\n", car.flairName.c_str());
-                    fprintf(fdbg, "  CountryCode (Str): '%s' | (Int): %d\n", ccodeStr.c_str(), ccodeInt);
-                    fprintf(fdbg, "  CountryName : '%s'\n", cnameStr.c_str());
-                    fprintf(fdbg, "  Country     : '%s'\n", countryStr.c_str());
-                    fprintf(fdbg, "  Nationality : '%s'\n", natStr.c_str());
-                    
-                    if (carIdx == 0) {
-                        const char* driversPos = strstr(sessionYaml, "Drivers:");
-                        if (driversPos) {
-                            fprintf(fdbg, "\n--- RAW DRIVERS YAML START ---\n");
-                            // write first 2000 chars of Drivers:
-                            fwrite(driversPos, 1, 2000, fdbg);
-                            fprintf(fdbg, "\n--- RAW DRIVERS YAML END ---\n\n");
-                        }
-                    }
-                    fclose(fdbg);
-                }
-            }
 
             sprintf( path, "DriverInfo:Drivers:CarIdx:{%d}CarClassEstLapTime:", carIdx );
             parseYamlFloat( sessionYaml, path, &car.carClassEstLapTime );
@@ -629,6 +583,55 @@ ConnectionStatus ir_tick()
             car.lastLapInPits = 0;
         if( ir_SessionState.getInt() >= 0 /* work around getting garbage sometimes (?) */ && ir_CarIdxOnPitRoad.getBool(carIdx) )
             car.lastLapInPits = ir_CarIdxLap.getInt(carIdx);
+    }
+
+    // Collision detection logic
+    static int lastMyIncidents = -1;
+    int curMyIncidents = ir_PlayerCarMyIncidentCount.getInt();
+    
+    if (irsdk.isConnected() && ir_session.driverCarIdx >= 0 && ir_session.trackLength > 0) {
+        if (lastMyIncidents != -1 && curMyIncidents > lastMyIncidents) {
+            int driverCarIdx = ir_session.driverCarIdx;
+            float myDistPct = ir_CarIdxLapDistPct.getFloat(driverCarIdx);
+            
+            float minAbsDist = 9999.0f;
+            int suspectCarIdx = -1;
+            float suspectDeltaMeters = 0.0f;
+
+            for (int i = 0; i < IR_MAX_CARS; ++i) {
+                if (i == driverCarIdx) continue;
+                const Car& car = ir_session.cars[i];
+                if (car.userName.empty() || car.isSpectator || car.isPaceCar) continue;
+                if (ir_CarIdxTrackSurface.getInt(i) == irsdk_NotInWorld) continue;
+
+                float otherDistPct = ir_CarIdxLapDistPct.getFloat(i);
+                float deltaPct = otherDistPct - myDistPct;
+                if (deltaPct > 0.5f) deltaPct -= 1.0f;
+                if (deltaPct < -0.5f) deltaPct += 1.0f;
+
+                float distMeters = deltaPct * ir_session.trackLength;
+                float absDist = std::abs(distMeters);
+
+                if (absDist < minAbsDist) {
+                    minAbsDist = absDist;
+                    suspectCarIdx = i;
+                    suspectDeltaMeters = distMeters;
+                }
+            }
+
+            // If a suspect is within 15 meters, record them as the collision partner
+            if (suspectCarIdx != -1 && minAbsDist < 15.0f) {
+                g_lastCollision.valid = true;
+                g_lastCollision.driverName = ir_session.cars[suspectCarIdx].userName;
+                g_lastCollision.carIdx = suspectCarIdx;
+                g_lastCollision.position = ir_getPosition(suspectCarIdx);
+                g_lastCollision.distance = suspectDeltaMeters;
+                g_lastCollision.timestamp = ir_SessionTime.getDouble();
+            }
+        }
+        lastMyIncidents = curMyIncidents;
+    } else {
+        lastMyIncidents = -1;
     }
 
     // Check for both ir_IsOnTrack and ir_IsOnTrackCar, because I've seen iRacing report true for ir_IsOnTrack 

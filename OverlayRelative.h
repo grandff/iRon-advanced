@@ -271,7 +271,15 @@ class OverlayRelative : public Overlay
                     }
                 }
 
-                if (isFasterClass && ci.delta < 0.0f && ci.delta > -5.0f) {
+                bool isAccidentCauser = g_lastCollision.valid && (ci.carIdx == g_lastCollision.carIdx);
+
+                if (isAccidentCauser) {
+                    float pulse = 0.25f + 0.125f * sinf(GetTickCount() * 0.008f);
+                    D2D1_RECT_F rBg = { 0, y-lineHeight/2, (float)m_width,  y+lineHeight/2 };
+                    m_brush->SetColor( float4(0.9f, 0.1f, 0.1f, pulse) ); // Soft pulsing red
+                    m_renderTarget->FillRectangle( &rBg, m_brush.Get() );
+                }
+                else if (isFasterClass && ci.delta < 0.0f && ci.delta > -5.0f) {
                     float pulse = 0.225f + 0.125f * sinf(GetTickCount() * 0.008f);
                     D2D1_RECT_F rBg = { 0, y-lineHeight/2, (float)m_width,  y+lineHeight/2 };
                     m_brush->SetColor( float4(0.9f, 0.5f, 0.0f, pulse) ); // Soft pulsing orange
@@ -320,21 +328,22 @@ class OverlayRelative : public Overlay
                     rr.rect = { r.left-2, r.top+1, r.right+2, r.bottom-1 };
                     rr.radiusX = 3;
                     rr.radiusY = 3;
-                    m_brush->SetColor( car.isSelf ? selfCol : (car.isBuddy ? buddyCol : (car.isFlagged?flaggedCol:carNumberBgCol)) );
+                    m_brush->SetColor( car.isSelf ? selfCol : (isAccidentCauser ? float4(0.9f, 0.1f, 0.1f, 1.0f) : (car.isBuddy ? buddyCol : (car.isFlagged?flaggedCol:carNumberBgCol))) );
                     m_renderTarget->FillRoundedRectangle( &rr, m_brush.Get() );
-                    m_brush->SetColor( carNumberTextCol );
+                    m_brush->SetColor( isAccidentCauser ? float4(1.0f, 1.0f, 1.0f, 1.0f) : carNumberTextCol );
                     m_text.render( m_renderTarget.Get(), s, m_textFormat.Get(), xoff+clm->textL, xoff+clm->textR, y, m_brush.Get(), DWRITE_TEXT_ALIGNMENT_CENTER );
                 }
-
-
-
-
 
                 // Name
                 {
                     clm = m_columns.get( (int)Columns::NAME );
-                    swprintf( s, _countof(s), L"%S", car.userName.c_str() );
-                    m_brush->SetColor( col );
+                    if (isAccidentCauser) {
+                        swprintf( s, _countof(s), L"[BOMB] %S", car.userName.c_str() );
+                        m_brush->SetColor( float4(1.0f, 0.2f, 0.2f, 1.0f) );
+                    } else {
+                        swprintf( s, _countof(s), L"%S", car.userName.c_str() );
+                        m_brush->SetColor( col );
+                    }
                     m_text.render( m_renderTarget.Get(), s, m_textFormat.Get(), xoff+clm->textL, xoff+clm->textR, y, m_brush.Get(), DWRITE_TEXT_ALIGNMENT_LEADING );
                 }
 

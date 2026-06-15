@@ -392,6 +392,16 @@ extern irsdkCVar ir_LFSHshockDefl_ST;    // float[6] LFSH shock deflection at 36
 extern irsdkCVar ir_LFSHshockVel;    // float[1] LFSH shock velocity (m/s)
 extern irsdkCVar ir_LFSHshockVel_ST;    // float[6] LFSH shock velocity at 360 Hz (m/s)
 
+struct CollisionInfo {
+    bool valid = false;
+    std::string driverName;
+    int carIdx = -1;
+    int position = 0;
+    float distance = 0.0f;
+    double timestamp = 0.0;
+};
+extern CollisionInfo g_lastCollision;
+
 extern Session ir_session;
 
 // Keep the session data updated.

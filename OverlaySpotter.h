@@ -83,8 +83,16 @@ protected:
             // Extreme proximity threshold: <= 2.2 meters -> Red alert. Otherwise -> Yellow caution.
             if (minAbsDist <= 2.2f) {
                 activeCol = float4(0.9f, 0.1f, 0.1f, 0.85f); // Red
+                bool flashOn = (GetTickCount64() % 300) < 150;
+                if (!flashOn) {
+                    activeCol.w = 0.2f;
+                }
             } else {
                 activeCol = float4(0.95f, 0.8f, 0.0f, 0.8f); // Yellow
+                bool flashOn = (GetTickCount64() % 1000) < 500;
+                if (!flashOn) {
+                    activeCol.w = 0.2f;
+                }
             }
         } else if (m_uiEditEnabled) {
             // Edit guide color (semi-transparent yellow)

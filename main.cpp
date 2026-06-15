@@ -43,15 +43,13 @@ SOFTWARE.
 #include "OverlayStandings.h"
 #include "OverlayDebug.h"
 #include "OverlayDDU.h"
-#include "OverlayFuel.h"
+#include "OverlayBombAvenge.h"
 #include "OverlaySpotter.h"
 #include "OverlayRadar.h"
 #include "OverlayIncident.h"
 #include "OverlayTraffic.h"
 #include "OverlayTireDash.h"
 #include "OverlayH2H.h"
-#include "TelemetryLogger.h"
-
 #define printf printf_to_log_and_console
 
 // ANSI Color Codes
@@ -81,7 +79,6 @@ void EnableANSIColors() {
     SetConsoleMode(hOut, dwMode);
 }
 
-TelemetryLogger* g_telemetryLogger = nullptr;
 
 
 enum class Hotkey
@@ -96,7 +93,7 @@ enum class Hotkey
     Radar,
     Incident,
     TireDash,
-    Fuel,
+    BombAvenge,
     H2H,
     DisplayMode
 };
@@ -113,7 +110,7 @@ static void registerHotkeys()
     UnregisterHotKey( NULL, (int)Hotkey::Radar );
     UnregisterHotKey( NULL, (int)Hotkey::Incident );
     UnregisterHotKey( NULL, (int)Hotkey::TireDash );
-    UnregisterHotKey( NULL, (int)Hotkey::Fuel );
+    UnregisterHotKey( NULL, (int)Hotkey::BombAvenge );
     UnregisterHotKey( NULL, (int)Hotkey::H2H );
     UnregisterHotKey( NULL, (int)Hotkey::DisplayMode );
 
@@ -149,8 +146,8 @@ static void registerHotkeys()
     if( parseHotkey( g_cfg.getString("OverlayTireDash","toggle_hotkey","ctrl-8"),&mod,&vk) )
         RegisterHotKey( NULL, (int)Hotkey::TireDash, mod, vk );
 
-    if( parseHotkey( g_cfg.getString("OverlayFuel","toggle_hotkey","ctrl-0"),&mod,&vk) )
-        RegisterHotKey( NULL, (int)Hotkey::Fuel, mod, vk );
+    if( parseHotkey( g_cfg.getString("OverlayBombAvenge","toggle_hotkey","ctrl-0"),&mod,&vk) )
+        RegisterHotKey( NULL, (int)Hotkey::BombAvenge, mod, vk );
 
     if( parseHotkey( g_cfg.getString("OverlayH2H","toggle_hotkey","ctrl-9"),&mod,&vk) )
         RegisterHotKey( NULL, (int)Hotkey::H2H, mod, vk );
@@ -211,13 +208,13 @@ static void prepopulateConfig(const std::vector<Overlay*>& overlays)
 
     // Load keys first
     std::string tireDashKey = g_cfg.getString("OverlayTireDash", "toggle_hotkey", "ctrl-8");
-    std::string fuelKey = g_cfg.getString("OverlayFuel", "toggle_hotkey", "ctrl-0");
+    std::string bombAvengeKey = g_cfg.getString("OverlayBombAvenge", "toggle_hotkey", "ctrl-0");
     g_cfg.getString("OverlayH2H", "toggle_hotkey", "ctrl-9");
 
     // Resolve conflict if both were set to ctrl-9 due to previous version defaults
-    if (tireDashKey == "ctrl-9" && fuelKey == "ctrl-9") {
+    if (tireDashKey == "ctrl-9" && bombAvengeKey == "ctrl-9") {
         g_cfg.setString("OverlayTireDash", "toggle_hotkey", "ctrl-8");
-        g_cfg.setString("OverlayFuel", "toggle_hotkey", "ctrl-0");
+        g_cfg.setString("OverlayBombAvenge", "toggle_hotkey", "ctrl-0");
     }
 
     for (Overlay* o : overlays)
@@ -248,11 +245,7 @@ int main()
 
     // Get dynamic folder in My Documents and set it up
     std::string ronDir = getRonDir();
-    if (!ronDir.empty()) {
-        std::string logPath = ronDir + "app.log";
-        FILE* errFp = nullptr;
-        freopen_s(&errFp, logPath.c_str(), "a", stderr);
-    }
+
     logMsg("INFO", "iRon-Advanced initialized. Settings directory: %s", ronDir.c_str());
 
     // Load the config and watch it for changes
@@ -261,10 +254,6 @@ int main()
     logMsg("INFO", "Config files loaded successfully from: %s", (ronDir + "config.json").c_str());
     g_cfg.watchForChanges();
 
-    // Start telemetry logging dynamically
-    g_telemetryLogger = new TelemetryLogger(ronDir + "telemetry_debug.log");
-    g_telemetryLogger->start();
-    logMsg("INFO", "Telemetry logger successfully started at: %s", (ronDir + "telemetry_debug.log").c_str());
 
     // Create overlays
     std::vector<Overlay*> overlays;
@@ -273,7 +262,7 @@ int main()
     overlays.push_back( new OverlayInputs() );
     overlays.push_back( new OverlayStandings() );
     overlays.push_back( new OverlayDDU() );
-    overlays.push_back( new OverlayFuel() );
+    overlays.push_back( new OverlayBombAvenge() );
     overlays.push_back( new OverlaySpotter(true) );   // Left
     overlays.push_back( new OverlaySpotter(false) );  // Right
     overlays.push_back( new OverlayRadar() );
@@ -310,7 +299,7 @@ int main()
     printf("    " ANSI_B_RED ">" ANSI_RESET " Toggle radar             : " ANSI_CYAN "[ %s ]\n" ANSI_RESET, g_cfg.getString("OverlayRadar","toggle_hotkey","").c_str() );
     printf("    " ANSI_B_RED ">" ANSI_RESET " Toggle incident warning  : " ANSI_CYAN "[ %s ]\n" ANSI_RESET, g_cfg.getString("OverlayIncident","toggle_hotkey","").c_str() );
     printf("    " ANSI_B_RED ">" ANSI_RESET " Toggle tire dash         : " ANSI_CYAN "[ %s ]\n" ANSI_RESET, g_cfg.getString("OverlayTireDash","toggle_hotkey","").c_str() );
-    printf("    " ANSI_B_RED ">" ANSI_RESET " Toggle fuel calculator   : " ANSI_CYAN "[ %s ]\n" ANSI_RESET, g_cfg.getString("OverlayFuel","toggle_hotkey","").c_str() );
+    printf("    " ANSI_B_RED ">" ANSI_RESET " Toggle Bomb Avenge       : " ANSI_CYAN "[ %s ]\n" ANSI_RESET, g_cfg.getString("OverlayBombAvenge","toggle_hotkey","").c_str() );
     printf("    " ANSI_B_RED ">" ANSI_RESET " Toggle Head to Head      : " ANSI_CYAN "[ %s ]\n" ANSI_RESET, g_cfg.getString("OverlayH2H","toggle_hotkey","").c_str() );
     
     printf("\n" ANSI_BOLD "  [ CONFIG ]" ANSI_RESET "\n");
@@ -382,8 +371,7 @@ int main()
             if (status == ConnectionStatus::DISCONNECTED) {
                 printf("\r" ANSI_BOLD ANSI_B_RED "  [ WAITING ] " ANSI_RESET "Waiting for iRacing connection...                       ");
             } else {
-                int qSize = g_telemetryLogger ? (int)g_telemetryLogger->getQueueSize() : 0;
-                printf("\r" ANSI_BOLD ANSI_GREEN "  [ ACTIVE ] " ANSI_RESET "iRacing connected (%s) | Telemetry Sending (Queue: %d)   ", ConnectionStatusStr[(int)status], qSize);
+                printf("\r" ANSI_BOLD ANSI_GREEN "  [ ACTIVE ] " ANSI_RESET "iRacing connected (%s)                                   ", ConnectionStatusStr[(int)status]);
             }
             fflush(stdout);
         }
@@ -396,40 +384,7 @@ int main()
 
         dbg( "connection status: %s, session type: %s, session state: %d, pace mode: %d, on track: %d, flags: 0x%X", ConnectionStatusStr[(int)status], SessionTypeStr[(int)ir_session.sessionType], ir_SessionState.getInt(), ir_PaceMode.getInt(), (int)ir_IsOnTrackCar.getBool(), ir_SessionFlags.getInt() );
 
-        // Push telemetry snapshot to logger queue if driving/connected
-        if (status == ConnectionStatus::DRIVING || status == ConnectionStatus::CONNECTED)
-        {
-            TelemetryData tdata;
-            tdata.timestamp = ir_SessionTime.getDouble();
-            tdata.lap = ir_Lap.getInt();
-            tdata.lapCompleted = ir_LapCompleted.getInt();
-            tdata.lapDistPct = ir_LapDistPct.getDouble();
-            tdata.speed = ir_Speed.getDouble();
-            tdata.rpm = ir_RPM.getDouble();
-            tdata.gear = ir_Gear.getInt();
-            tdata.throttle = ir_Throttle.getDouble();
-            tdata.brake = ir_Brake.getDouble();
-            tdata.steering = ir_SteeringWheelAngle.getDouble();
-            tdata.fuelLevelPct = ir_FuelLevelPct.getDouble();
-            tdata.fuelLevel = ir_FuelLevel.getDouble();
-            tdata.waterTemp = ir_WaterTemp.getDouble();
-            tdata.oilTemp = ir_OilTemp.getDouble();
-            tdata.oilPress = ir_OilPress.getDouble();
-            tdata.voltage = ir_Voltage.getDouble();
-            tdata.trackTemp = ir_TrackTempCrew.getDouble();
-            tdata.airTemp = ir_AirTemp.getDouble();
-            tdata.sessionState = ir_SessionState.getInt();
-            tdata.sessionFlags = ir_SessionFlags.getInt();
-            tdata.driverCarIdx = ir_session.driverCarIdx;
-            tdata.isOnTrackCar = ir_IsOnTrackCar.getBool();
-            tdata.isInGarage = ir_IsInGarage.getBool();
-            tdata.lat = ir_Lat.getDouble();
-            tdata.lon = ir_Lon.getDouble();
-            tdata.alt = ir_Alt.getFloat();
-            if (g_telemetryLogger) {
-                g_telemetryLogger->push(tdata);
-            }
-        }
+
 
         // Update/render overlays
         {
@@ -517,8 +472,8 @@ int main()
                     case (int)Hotkey::TireDash:
                         g_cfg.setBool( "OverlayTireDash", "enabled", !g_cfg.getBool("OverlayTireDash","enabled",true) );
                         break;
-                    case (int)Hotkey::Fuel:
-                        g_cfg.setBool( "OverlayFuel", "enabled", !g_cfg.getBool("OverlayFuel","enabled",true) );
+                    case (int)Hotkey::BombAvenge:
+                        g_cfg.setBool( "OverlayBombAvenge", "enabled", !g_cfg.getBool("OverlayBombAvenge","enabled",true) );
                         break;
                     case (int)Hotkey::H2H:
                         g_cfg.setBool( "OverlayH2H", "enabled", !g_cfg.getBool("OverlayH2H","enabled",true) );
@@ -555,9 +510,5 @@ int main()
     for( Overlay* o : overlays )
         delete o;
 
-    if (g_telemetryLogger) {
-        g_telemetryLogger->stop();
-        delete g_telemetryLogger;
-        g_telemetryLogger = nullptr;
-    }
+
 }

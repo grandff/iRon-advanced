@@ -58,12 +58,6 @@ inline std::string getRonDir()
 
 inline void logMsg(const char* level, const char* format, ...)
 {
-    std::string ronDir = getRonDir();
-    if (ronDir.empty()) return;
-    
-    std::string logPath = ronDir + "app.log";
-    FILE* fp = fopen(logPath.c_str(), "a");
-    
     time_t rawtime;
     struct tm timeinfo;
     char timeStr[64];
@@ -80,11 +74,6 @@ inline void logMsg(const char* level, const char* format, ...)
     char dbgMsg[2560];
     sprintf_s(dbgMsg, "[iRon] [%s] [%s] %s\n", timeStr, level, message);
     OutputDebugStringA(dbgMsg);
-    
-    if (fp) {
-        fprintf(fp, "[%s] [%s] %s\n", timeStr, level, message);
-        fclose(fp);
-    }
 }
 
 inline int printf_to_log_and_console(const char* format, ...)
@@ -97,28 +86,6 @@ inline int printf_to_log_and_console(const char* format, ...)
     va_copy(args1, args);
     int result = vprintf(format, args1);
     va_end(args1);
-    
-    // Print to app.log
-    std::string ronDir = getRonDir();
-    if (!ronDir.empty()) {
-        std::string logPath = ronDir + "app.log";
-        FILE* fp = fopen(logPath.c_str(), "a");
-        if (fp) {
-            time_t rawtime;
-            struct tm timeinfo;
-            char timeStr[64];
-            time(&rawtime);
-            localtime_s(&timeinfo, &rawtime);
-            strftime(timeStr, sizeof(timeStr), "%Y-%m-%d %H:%M:%S", &timeinfo);
-            
-            fprintf(fp, "[%s] [CONSOLE] ", timeStr);
-            va_list args2;
-            va_copy(args2, args);
-            vfprintf(fp, format, args2);
-            va_end(args2);
-            fclose(fp);
-        }
-    }
     
     va_end(args);
     return result;

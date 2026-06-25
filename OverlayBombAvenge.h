@@ -68,7 +68,7 @@ protected:
 
         // Draw Title "BOMB AVENGE"
         m_brush->SetColor(float4(0.95f, 0.2f, 0.2f, 0.95f)); // Bright red title
-        m_text.render(m_renderTarget.Get(), L"BOMB AVENGE", m_textFormatBold.Get(), gap, w - gap, gap, m_brush.Get(), DWRITE_TEXT_ALIGNMENT_LEADING);
+        m_text.render(m_renderTarget.Get(), L"BOMB AVENGE", m_textFormatBold.Get(), gap, w - gap, h * 0.22f, m_brush.Get(), DWRITE_TEXT_ALIGNMENT_LEADING);
 
         // Target info
         std::wstring driverName;
@@ -113,12 +113,12 @@ protected:
 
         // Draw Driver Name
         m_brush->SetColor(float4(1.0f, 1.0f, 1.0f, 0.95f));
-        m_text.render(m_renderTarget.Get(), driverName.c_str(), m_textFormat.Get(), gap, w - gap, gap + 22.0f, m_brush.Get(), DWRITE_TEXT_ALIGNMENT_LEADING);
+        m_text.render(m_renderTarget.Get(), driverName.c_str(), m_textFormat.Get(), gap, w - gap, h * 0.50f, m_brush.Get(), DWRITE_TEXT_ALIGNMENT_LEADING);
 
         // Draw Position and Distance
         swprintf(s, _countof(s), L"Pos: %s  |  Gap: %s", posStr.c_str(), distStr.c_str());
         m_brush->SetColor(float4(0.8f, 0.8f, 0.8f, 0.85f));
-        m_text.render(m_renderTarget.Get(), s, m_textFormatSmall.Get(), gap, w - gap, gap + 44.0f, m_brush.Get(), DWRITE_TEXT_ALIGNMENT_LEADING);
+        m_text.render(m_renderTarget.Get(), s, m_textFormatSmall.Get(), gap, w - gap, h * 0.78f, m_brush.Get(), DWRITE_TEXT_ALIGNMENT_LEADING);
     }
 
 private:

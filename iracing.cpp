@@ -705,11 +705,16 @@ float ir_estimateLaptime()
     float best = ir_LapBestLapTime.getFloat();
     if( best > 0 )
         return best;
-    return ir_session.cars[ir_session.driverCarIdx].carClassEstLapTime;
+    if( ir_session.driverCarIdx >= 0 && ir_session.driverCarIdx < IR_MAX_CARS )
+        return ir_session.cars[ir_session.driverCarIdx].carClassEstLapTime;
+    return 100.0f;
 }
 
 int ir_getPosition( int carIdx )
 {
+    if (carIdx < 0 || carIdx >= IR_MAX_CARS)
+        return 0;
+
     // Try the different sources we have for position data, in descending order of importance
     int pos = ir_CarIdxPosition.getInt(carIdx);
     if( pos > 0 )

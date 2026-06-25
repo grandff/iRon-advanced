@@ -224,7 +224,7 @@ class OverlayDDU : public Overlay
             const bool   sessionIsTimeLimited  = ir_SessionLapsTotal.getInt() == 32767 && ir_SessionTimeRemain.getDouble()<48.0*3600.0;  // most robust way I could find to figure out whether this is a time-limited session (info in session string is often misleading)
             const double remainingSessionTime  = sessionIsTimeLimited ? ir_SessionTimeRemain.getDouble() : -1;
             const int    remainingLaps         = sessionIsTimeLimited ? int(0.5+remainingSessionTime/ir_estimateLaptime()) : (ir_SessionLapsRemainEx.getInt() != 32767 ? ir_SessionLapsRemainEx.getInt() : -1);
-            const int    currentLap            = ir_isPreStart() ? 0 : std::max(0,ir_CarIdxLap.getInt(carIdx));
+            const int    currentLap            = (ir_isPreStart() || carIdx < 0) ? 0 : std::max(0,ir_CarIdxLap.getInt(carIdx));
             const bool   lapCountUpdated       = currentLap != m_prevCurrentLap;
             m_prevCurrentLap = currentLap;
             if( lapCountUpdated )
@@ -234,7 +234,6 @@ class OverlayDDU : public Overlay
 
             wchar_t s[512];
 
-            m_renderTarget->BeginDraw();
             m_brush->SetColor( textCol );
 
             // Background
@@ -469,7 +468,7 @@ class OverlayDDU : public Overlay
 
                         m_isValidFuelLap = true;
                     }
-                    if( (ir_SessionFlags.getInt() & (irsdk_yellow|irsdk_yellowWaving|irsdk_red|irsdk_checkered|irsdk_crossed|irsdk_oneLapToGreen|irsdk_caution|irsdk_cautionWaving|irsdk_disqualify|irsdk_repair)) || ir_CarIdxOnPitRoad.getBool(carIdx) )
+                    if( (ir_SessionFlags.getInt() & (irsdk_yellow|irsdk_yellowWaving|irsdk_red|irsdk_checkered|irsdk_crossed|irsdk_oneLapToGreen|irsdk_caution|irsdk_cautionWaving|irsdk_disqualify|irsdk_repair)) || (carIdx >= 0 && ir_CarIdxOnPitRoad.getBool(carIdx)) )
                         m_isValidFuelLap = false;
                     
                     for( float v : m_fuelUsedLastLaps ) {
@@ -683,8 +682,6 @@ class OverlayDDU : public Overlay
                 m_text.render( m_renderTarget.Get(), L"Oil",     m_textFormatSmall.Get(), m_boxOil.x0, m_boxOil.x1, m_boxOil.y0, m_brush.Get(), DWRITE_TEXT_ALIGNMENT_CENTER );
                 m_text.render( m_renderTarget.Get(), L"Water",   m_textFormatSmall.Get(), m_boxWater.x0, m_boxWater.x1, m_boxWater.y0, m_brush.Get(), DWRITE_TEXT_ALIGNMENT_CENTER );
             }
-            
-            m_renderTarget->EndDraw();
         }
 
         void addBoxFigure( ID2D1GeometrySink* geometrySink, const Box& box )

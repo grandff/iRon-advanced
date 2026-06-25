@@ -47,7 +47,6 @@ SOFTWARE.
 #include "OverlaySpotter.h"
 #include "OverlayRadar.h"
 #include "OverlayIncident.h"
-#include "OverlayTraffic.h"
 #include "OverlayTireDash.h"
 #include "OverlayH2H.h"
 #define printf printf_to_log_and_console
@@ -267,7 +266,6 @@ int main()
     overlays.push_back( new OverlaySpotter(false) );  // Right
     overlays.push_back( new OverlayRadar() );
     overlays.push_back( new OverlayIncident() );
-    overlays.push_back( new OverlayTraffic() );
     overlays.push_back( new OverlayTireDash() );
     overlays.push_back( new OverlayH2H() );
 #ifdef _DEBUG

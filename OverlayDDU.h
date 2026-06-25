@@ -42,10 +42,8 @@ class OverlayDDU : public Overlay
             : Overlay("OverlayDDU")
         {}
 
-       #ifdef _DEBUG
-       virtual bool    canEnableWhileNotDriving() const { return true; }
-       virtual bool    canEnableWhileDisconnected() const { return true; }
-       #endif
+       virtual bool    canEnableWhileNotDriving() const override { return true; }
+       virtual bool    canEnableWhileDisconnected() const override { return true; }
 
 
     protected:

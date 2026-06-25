@@ -386,8 +386,13 @@ ConnectionStatus ir_tick()
 
     irsdk.waitForData(16);
 
+    static bool wasConnected = false;
     if( !irsdk.isConnected() )
+    {
+        g_lastCollision.valid = false;
+        wasConnected = false;
         return ConnectionStatus::DISCONNECTED;
+    }
 
     if( irsdk.wasSessionStrUpdated() )
     {
@@ -632,6 +637,29 @@ ConnectionStatus ir_tick()
         lastMyIncidents = curMyIncidents;
     } else {
         lastMyIncidents = -1;
+    }
+
+    // Reset collision info when subsession or session number changes
+    static int lastSubsessionId = -1;
+    static int lastSessionNum = -1;
+
+    if (!wasConnected) {
+        g_lastCollision.valid = false;
+        lastSubsessionId = ir_session.subsessionId;
+        lastSessionNum = ir_SessionNum.getInt();
+        wasConnected = true;
+    } else {
+        int curSubsessionId = ir_session.subsessionId;
+        int curSessionNum = ir_SessionNum.getInt();
+
+        if (lastSubsessionId != -1 && curSubsessionId != lastSubsessionId) {
+            g_lastCollision.valid = false;
+        }
+        if (lastSessionNum != -1 && curSessionNum != lastSessionNum) {
+            g_lastCollision.valid = false;
+        }
+        lastSubsessionId = curSubsessionId;
+        lastSessionNum = curSessionNum;
     }
 
     // Check for both ir_IsOnTrack and ir_IsOnTrackCar, because I've seen iRacing report true for ir_IsOnTrack 

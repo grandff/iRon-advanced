@@ -261,28 +261,12 @@ class OverlayRelative : public Overlay
                 const CarInfo& ci  = relatives[i];
                 const Car&     car = ir_session.cars[ci.carIdx];
 
-                // Multi-Class Faster Car Approaching Warning (Row highlight)
-                bool isFasterClass = false;
-                if (ir_session.driverCarIdx >= 0 && !car.isSelf && !car.isPaceCar && !car.isSpectator) {
-                    float myClassEstLapTime = ir_session.cars[ir_session.driverCarIdx].carClassEstLapTime;
-                    float otherClassEstLapTime = car.carClassEstLapTime;
-                    if (myClassEstLapTime > 0.0f && otherClassEstLapTime > 0.0f && otherClassEstLapTime < myClassEstLapTime - 1.0f) {
-                        isFasterClass = true;
-                    }
-                }
-
                 bool isAccidentCauser = g_lastCollision.valid && (ci.carIdx == g_lastCollision.carIdx);
 
                 if (isAccidentCauser) {
                     float pulse = 0.25f + 0.125f * sinf(GetTickCount() * 0.008f);
                     D2D1_RECT_F rBg = { 0, y-lineHeight/2, (float)m_width,  y+lineHeight/2 };
                     m_brush->SetColor( float4(0.9f, 0.1f, 0.1f, pulse) ); // Soft pulsing red
-                    m_renderTarget->FillRectangle( &rBg, m_brush.Get() );
-                }
-                else if (isFasterClass && ci.delta < 0.0f && ci.delta > -5.0f) {
-                    float pulse = 0.225f + 0.125f * sinf(GetTickCount() * 0.008f);
-                    D2D1_RECT_F rBg = { 0, y-lineHeight/2, (float)m_width,  y+lineHeight/2 };
-                    m_brush->SetColor( float4(0.9f, 0.5f, 0.0f, pulse) ); // Soft pulsing orange
                     m_renderTarget->FillRectangle( &rBg, m_brush.Get() );
                 }
                 // Alternating line backgrounds (only if not highlighted)

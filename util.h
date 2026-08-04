@@ -45,6 +45,23 @@ SOFTWARE.
         exit(1); \
     } } while(0)
 
+#define HRCHECK_LOG( x_ ) do{ \
+    HRESULT hr_ = x_; \
+    if( FAILED(hr_) ) { \
+        logMsg("WARN", "failed call to %s (%s:%d), hr=0x%x", #x_, __FILE__, __LINE__, hr_); \
+    } } while(0)
+
+inline RECT getVirtualScreenRect()
+{
+    RECT r;
+    r.left = GetSystemMetrics(SM_XVIRTUALSCREEN);
+    r.top = GetSystemMetrics(SM_YVIRTUALSCREEN);
+    r.right = r.left + GetSystemMetrics(SM_CXVIRTUALSCREEN);
+    r.bottom = r.top + GetSystemMetrics(SM_CYVIRTUALSCREEN);
+    return r;
+}
+
+
 inline std::string getRonDir()
 {
     char path[MAX_PATH];

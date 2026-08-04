@@ -169,59 +169,105 @@ void Overlay::enable( bool on )
         const bool isdebug = false;
 #endif
 
-        // D3D11 device
-        HRCHECK(D3D11CreateDevice( NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, D3D11_CREATE_DEVICE_SINGLETHREADED | D3D11_CREATE_DEVICE_BGRA_SUPPORT, NULL, 0, D3D11_SDK_VERSION, &m_d3dDevice, NULL, NULL ));
+        // D3D11 device creation with WARP fallback for multi-GPU / multi-monitor stability
+        HRESULT hrDevice = D3D11CreateDevice( NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, D3D11_CREATE_DEVICE_SINGLETHREADED | D3D11_CREATE_DEVICE_BGRA_SUPPORT, NULL, 0, D3D11_SDK_VERSION, &m_d3dDevice, NULL, NULL );
+        if (FAILED(hrDevice)) {
+            logMsg("WARN", "Hardware D3D11CreateDevice failed (0x%x) for %s. Retrying with WARP driver.", hrDevice, m_name.c_str());
+            hrDevice = D3D11CreateDevice( NULL, D3D_DRIVER_TYPE_WARP, NULL, D3D11_CREATE_DEVICE_SINGLETHREADED | D3D11_CREATE_DEVICE_BGRA_SUPPORT, NULL, 0, D3D11_SDK_VERSION, &m_d3dDevice, NULL, NULL );
+        }
+        if (FAILED(hrDevice) || !m_d3dDevice) {
+            logMsg("ERROR", "D3D11CreateDevice failed for %s with HRESULT 0x%x", m_name.c_str(), hrDevice);
+            DestroyWindow(m_hwnd);
+            m_hwnd = 0;
+            return;
+        }
 
         // DXGI device
         ComPtr<IDXGIDevice> dxgiDevice;
-        HRCHECK(m_d3dDevice.As(&dxgiDevice));
+        if (FAILED(m_d3dDevice.As(&dxgiDevice))) {
+            logMsg("ERROR", "Failed to query IDXGIDevice for %s", m_name.c_str());
+            DestroyWindow(m_hwnd);
+            m_hwnd = 0;
+            return;
+        }
 
         // DXGI factory
         ComPtr<IDXGIFactory2> dxgiFactory;
-        HRCHECK(CreateDXGIFactory2( isdebug ? DXGI_CREATE_FACTORY_DEBUG : 0, IID_PPV_ARGS(&dxgiFactory) ));
+        if (FAILED(CreateDXGIFactory2( isdebug ? DXGI_CREATE_FACTORY_DEBUG : 0, IID_PPV_ARGS(&dxgiFactory) ))) {
+            logMsg("ERROR", "CreateDXGIFactory2 failed for %s", m_name.c_str());
+            DestroyWindow(m_hwnd);
+            m_hwnd = 0;
+            return;
+        }
 
         // DXGI Swap chain
         DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {};
-        swapChainDesc.Width            = width;
-        swapChainDesc.Height           = height;
+        swapChainDesc.Width            = std::max(width, 30);
+        swapChainDesc.Height           = std::max(height, 30);
         swapChainDesc.Format           = DXGI_FORMAT_B8G8R8A8_UNORM;
         swapChainDesc.BufferUsage      = DXGI_USAGE_RENDER_TARGET_OUTPUT;
         swapChainDesc.SwapEffect       = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
         swapChainDesc.BufferCount      = 2;                              
         swapChainDesc.SampleDesc.Count = 1;                              
         swapChainDesc.AlphaMode        = DXGI_ALPHA_MODE_PREMULTIPLIED;
-        HRCHECK(dxgiFactory->CreateSwapChainForComposition( dxgiDevice.Get(), &swapChainDesc, NULL, &m_swapChain ));
-        HRCHECK(dxgiFactory->MakeWindowAssociation( m_hwnd, DXGI_MWA_NO_ALT_ENTER ));
+
+        if (FAILED(dxgiFactory->CreateSwapChainForComposition( dxgiDevice.Get(), &swapChainDesc, NULL, &m_swapChain ))) {
+            logMsg("ERROR", "CreateSwapChainForComposition failed for %s", m_name.c_str());
+            DestroyWindow(m_hwnd);
+            m_hwnd = 0;
+            return;
+        }
+        dxgiFactory->MakeWindowAssociation( m_hwnd, DXGI_MWA_NO_ALT_ENTER );
 
         // DXGI surface
         ComPtr<IDXGISurface2> dxgiSurface;
-        HRCHECK(m_swapChain->GetBuffer( 0, IID_PPV_ARGS(&dxgiSurface) ));
+        if (FAILED(m_swapChain->GetBuffer( 0, IID_PPV_ARGS(&dxgiSurface) ))) {
+            logMsg("ERROR", "GetBuffer failed for %s", m_name.c_str());
+            DestroyWindow(m_hwnd);
+            m_hwnd = 0;
+            return;
+        }
 
         // D2D factory
         D2D1_FACTORY_OPTIONS factoryOptions = {};
         factoryOptions.debugLevel = isdebug ? D2D1_DEBUG_LEVEL_INFORMATION : D2D1_DEBUG_LEVEL_NONE;
-        HRCHECK(D2D1CreateFactory( D2D1_FACTORY_TYPE_SINGLE_THREADED, __uuidof(m_d2dFactory), &factoryOptions, &m_d2dFactory ));
+        if (FAILED(D2D1CreateFactory( D2D1_FACTORY_TYPE_SINGLE_THREADED, __uuidof(m_d2dFactory), &factoryOptions, &m_d2dFactory ))) {
+            logMsg("ERROR", "D2D1CreateFactory failed for %s", m_name.c_str());
+            DestroyWindow(m_hwnd);
+            m_hwnd = 0;
+            return;
+        }
 
         // D2D render target
         D2D1_RENDER_TARGET_PROPERTIES targetProperties = {};
         targetProperties.type = D2D1_RENDER_TARGET_TYPE_DEFAULT;
         targetProperties.pixelFormat.format = DXGI_FORMAT_UNKNOWN;
         targetProperties.pixelFormat.alphaMode = D2D1_ALPHA_MODE_PREMULTIPLIED;
-        HRCHECK(m_d2dFactory->CreateDxgiSurfaceRenderTarget( dxgiSurface.Get(), &targetProperties, &m_renderTarget ));
+        if (FAILED(m_d2dFactory->CreateDxgiSurfaceRenderTarget( dxgiSurface.Get(), &targetProperties, &m_renderTarget ))) {
+            logMsg("ERROR", "CreateDxgiSurfaceRenderTarget failed for %s", m_name.c_str());
+            DestroyWindow(m_hwnd);
+            m_hwnd = 0;
+            return;
+        }
 
         // Composition stuff
-        HRCHECK(DCompositionCreateDevice( dxgiDevice.Get(), IID_PPV_ARGS(&m_compositionDevice) ));
-        HRCHECK(m_compositionDevice->CreateTargetForHwnd( m_hwnd, true, &m_compositionTarget ));
-        HRCHECK(m_compositionDevice->CreateVisual( &m_compositionVisual ));
-        HRCHECK(m_compositionVisual->SetContent(m_swapChain.Get()));
-        HRCHECK(m_compositionTarget->SetRoot(m_compositionVisual.Get()));
-        HRCHECK(m_compositionDevice->Commit());
+        if (SUCCEEDED(DCompositionCreateDevice( dxgiDevice.Get(), IID_PPV_ARGS(&m_compositionDevice) ))) {
+            if (SUCCEEDED(m_compositionDevice->CreateTargetForHwnd( m_hwnd, true, &m_compositionTarget ))) {
+                if (SUCCEEDED(m_compositionDevice->CreateVisual( &m_compositionVisual ))) {
+                    m_compositionVisual->SetContent(m_swapChain.Get());
+                    m_compositionTarget->SetRoot(m_compositionVisual.Get());
+                    m_compositionDevice->Commit();
+                }
+            }
+        }
 
         // DirectWrite factory
-        HRCHECK(DWriteCreateFactory( DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory), reinterpret_cast<IUnknown**>(m_dwriteFactory.GetAddressOf()) ));
+        DWriteCreateFactory( DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory), reinterpret_cast<IUnknown**>(m_dwriteFactory.GetAddressOf()) );
 
         // Default brush
-        HRCHECK(m_renderTarget->CreateSolidColorBrush( float4(0,0,0,1), &m_brush ));
+        if (m_renderTarget) {
+            m_renderTarget->CreateSolidColorBrush( float4(0,0,0,1), &m_brush );
+        }
 
         //
         // Finalize enable
@@ -294,7 +340,7 @@ void Overlay::sessionChanged()
 
 void Overlay::update()
 {
-    if( !m_enabled )
+    if( !m_enabled || !m_renderTarget || !m_swapChain )
         return;
 
     const float w = (float)m_width;
@@ -339,7 +385,7 @@ void Overlay::update()
         // We use a simple DrawText hack if dwrite factory is available. We don't have text format cached here easily,
         // so let's just make one temporarily (not super efficient, but it's only for UI edit mode)
         Microsoft::WRL::ComPtr<IDWriteTextFormat> tempFormat;
-        if(SUCCEEDED(m_dwriteFactory->CreateTextFormat(L"Consolas", NULL, DWRITE_FONT_WEIGHT_BOLD, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, 16.0f, L"en-us", &tempFormat))) {
+        if(m_dwriteFactory && SUCCEEDED(m_dwriteFactory->CreateTextFormat(L"Consolas", NULL, DWRITE_FONT_WEIGHT_BOLD, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, 16.0f, L"en-us", &tempFormat))) {
             std::wstring wname(m_name.begin(), m_name.end());
             m_renderTarget->DrawText(wname.c_str(), (UINT32)wname.length(), tempFormat.Get(), { 5.0f, 2.0f, 300.0f, 25.0f }, m_brush.Get());
         }
@@ -347,7 +393,7 @@ void Overlay::update()
 
     m_renderTarget->EndDraw();
 
-    HRCHECK(m_swapChain->Present( 1, 0 ));
+    HRCHECK_LOG(m_swapChain->Present( 1, 0 ));
 }
 
 void Overlay::setWindowPosAndSize( int x, int y, int w, int h, bool callSetWindowPos )
@@ -355,7 +401,14 @@ void Overlay::setWindowPosAndSize( int x, int y, int w, int h, bool callSetWindo
     w = std::max( w, 30 );
     h = std::max( h, 30 );
 
-    if( callSetWindowPos )
+    // Verify coordinates against multi-monitor virtual desktop bounds
+    RECT vrect = getVirtualScreenRect();
+    if (x < vrect.left - w + 30 || x > vrect.right - 30 || y < vrect.top - h + 30 || y > vrect.bottom - 30) {
+        x = vrect.left + 50;
+        y = vrect.top + 50;
+    }
+
+    if( callSetWindowPos && m_hwnd )
         SetWindowPos( m_hwnd, HWND_TOPMOST, x, y, w, h, SWP_NOACTIVATE|SWP_SHOWWINDOW );
     
     m_xpos = x;
@@ -363,22 +416,32 @@ void Overlay::setWindowPosAndSize( int x, int y, int w, int h, bool callSetWindo
     m_width = w;
     m_height = h;
 
+    if (!m_swapChain)
+        return;
+
     m_renderTarget.Reset();  // need to release all references to swap chain's back buffers before calling ResizeBuffers
 
-    HRCHECK(m_swapChain->ResizeBuffers( 0, w, h, DXGI_FORMAT_UNKNOWN, 0 ));
+    HRESULT hr = m_swapChain->ResizeBuffers( 0, w, h, DXGI_FORMAT_UNKNOWN, 0 );
+    if (FAILED(hr)) {
+        logMsg("WARN", "ResizeBuffers failed for %s, hr=0x%x", m_name.c_str(), hr);
+        return;
+    }
 
     // Recreate render target
     ComPtr<IDXGISurface2> dxgiSurface;
-    HRCHECK(m_swapChain->GetBuffer( 0, IID_PPV_ARGS(&dxgiSurface) ));
+    HRCHECK_LOG(m_swapChain->GetBuffer( 0, IID_PPV_ARGS(&dxgiSurface) ));
+    if (!dxgiSurface) return;
+
     D2D1_RENDER_TARGET_PROPERTIES targetProperties = {};
     targetProperties.type = D2D1_RENDER_TARGET_TYPE_DEFAULT;
     targetProperties.pixelFormat.format = DXGI_FORMAT_UNKNOWN;
     targetProperties.pixelFormat.alphaMode = D2D1_ALPHA_MODE_PREMULTIPLIED;
-    HRCHECK(m_d2dFactory->CreateDxgiSurfaceRenderTarget( dxgiSurface.Get(), &targetProperties, &m_renderTarget ));
+    HRCHECK_LOG(m_d2dFactory->CreateDxgiSurfaceRenderTarget( dxgiSurface.Get(), &targetProperties, &m_renderTarget ));
+    if (!m_renderTarget) return;
 
     // Recreate default brush using the new render target to avoid device-dependent resource mismatch crashes
     m_brush.Reset();
-    HRCHECK(m_renderTarget->CreateSolidColorBrush( float4(0,0,0,1), &m_brush ));
+    HRCHECK_LOG(m_renderTarget->CreateSolidColorBrush( float4(0,0,0,1), &m_brush ));
 }
 
 void Overlay::saveWindowPosAndSize()

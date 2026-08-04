@@ -236,6 +236,16 @@ static void prepopulateConfig(const std::vector<Overlay*>& overlays)
 
 int main()
 {
+    // Set Per-Monitor V2 DPI Awareness for multi-monitor / triple-monitor setups
+    typedef BOOL(WINAPI* PFN_SetProcessDpiAwarenessContext)(DPI_AWARENESS_CONTEXT);
+    HMODULE hUser32 = GetModuleHandleA("user32.dll");
+    if (hUser32) {
+        PFN_SetProcessDpiAwarenessContext pSetDpi = (PFN_SetProcessDpiAwarenessContext)GetProcAddress(hUser32, "SetProcessDpiAwarenessContext");
+        if (pSetDpi) {
+            pSetDpi(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
+        }
+    }
+
     // Enable ANSI colors for beautiful console output
     EnableANSIColors();
 

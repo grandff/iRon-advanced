@@ -236,6 +236,8 @@ static void prepopulateConfig(const std::vector<Overlay*>& overlays)
 
 int main()
 {
+    installCrashLogging();
+
     // Set Per-Monitor V2 DPI Awareness for multi-monitor / triple-monitor setups
     typedef BOOL(WINAPI* PFN_SetProcessDpiAwarenessContext)(DPI_AWARENESS_CONTEXT);
     HMODULE hUser32 = GetModuleHandleA("user32.dll");
@@ -256,6 +258,7 @@ int main()
     std::string ronDir = getRonDir();
 
     logMsg("INFO", "iRon-Advanced initialized. Settings directory: %s", ronDir.c_str());
+    logMsg("INFO", "File logging enabled: %s", getApplicationLogPath().c_str());
 
     // Load the config and watch it for changes
     g_cfg.setFilename(ronDir + "config.json");
@@ -434,6 +437,7 @@ int main()
                 if( msg.wParam == (int)Hotkey::UiEdit )
                 {
                     uiEdit = !uiEdit;
+                    logMsg("INFO", "UI layout edit mode %s.", uiEdit ? "enabled" : "disabled");
                     for( Overlay* o : overlays )
                         o->enableUiEdit( uiEdit );
 

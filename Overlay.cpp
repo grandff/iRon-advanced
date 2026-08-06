@@ -76,7 +76,6 @@ static LRESULT CALLBACK windowProc( HWND hwnd, UINT msg, WPARAM wparam, LPARAM l
             return hit;
         }
         case WM_MOVING:
-        case WM_SIZE:
         {
             if( o )
             {
@@ -87,6 +86,20 @@ static LRESULT CALLBACK windowProc( HWND hwnd, UINT msg, WPARAM wparam, LPARAM l
                 const int w = r.right - r.left;
                 const int h = r.bottom - r.top;
                 o->setWindowPosAndSize( x, y, w, h, false );
+                o->update(); // draw window content while moving/resizing
+            }
+            break;
+        }
+        case WM_SIZE:
+        {
+            if( o )
+            {
+                if( wparam == SIZE_MINIMIZED )
+                    break;
+
+                RECT r;
+                GetWindowRect( hwnd, &r );
+                o->setWindowPosAndSize( r.left, r.top, LOWORD(lparam), HIWORD(lparam), false );
                 o->update(); // draw window content while moving/resizing
             }
             break;
@@ -340,7 +353,7 @@ void Overlay::sessionChanged()
 
 void Overlay::update()
 {
-    if( !m_enabled || !m_renderTarget || !m_swapChain )
+    if( !m_enabled || !m_renderTarget || !m_swapChain || !m_brush )
         return;
 
     const float w = (float)m_width;
@@ -410,38 +423,56 @@ void Overlay::setWindowPosAndSize( int x, int y, int w, int h, bool callSetWindo
 
     if( callSetWindowPos && m_hwnd )
         SetWindowPos( m_hwnd, HWND_TOPMOST, x, y, w, h, SWP_NOACTIVATE|SWP_SHOWWINDOW );
+
+    // SetWindowPos sends WM_SIZE synchronously. Re-check after it returns so
+    // the WM_SIZE handler is the only code that rebuilds the swap chain.
+    const bool sizeChanged = w != m_width || h != m_height;
     
     m_xpos = x;
     m_ypos = y;
     m_width = w;
     m_height = h;
 
-    if (!m_swapChain)
+    // Moving an overlay does not require recreating its DirectX back buffer.
+    // WM_SIZE can be sent synchronously by SetWindowPos, so only the first
+    // resize request may rebuild the swap chain.
+    if (!m_swapChain || !sizeChanged || m_resizingSwapChain)
         return;
+
+    logMsg("DEBUG", "Resizing %s swap chain to %dx%d at (%d,%d)", m_name.c_str(), w, h, x, y);
+    m_resizingSwapChain = true;
 
     m_renderTarget.Reset();  // need to release all references to swap chain's back buffers before calling ResizeBuffers
 
     HRESULT hr = m_swapChain->ResizeBuffers( 0, w, h, DXGI_FORMAT_UNKNOWN, 0 );
     if (FAILED(hr)) {
         logMsg("WARN", "ResizeBuffers failed for %s, hr=0x%x", m_name.c_str(), hr);
+        m_resizingSwapChain = false;
         return;
     }
 
     // Recreate render target
     ComPtr<IDXGISurface2> dxgiSurface;
     HRCHECK_LOG(m_swapChain->GetBuffer( 0, IID_PPV_ARGS(&dxgiSurface) ));
-    if (!dxgiSurface) return;
+    if (!dxgiSurface) {
+        m_resizingSwapChain = false;
+        return;
+    }
 
     D2D1_RENDER_TARGET_PROPERTIES targetProperties = {};
     targetProperties.type = D2D1_RENDER_TARGET_TYPE_DEFAULT;
     targetProperties.pixelFormat.format = DXGI_FORMAT_UNKNOWN;
     targetProperties.pixelFormat.alphaMode = D2D1_ALPHA_MODE_PREMULTIPLIED;
     HRCHECK_LOG(m_d2dFactory->CreateDxgiSurfaceRenderTarget( dxgiSurface.Get(), &targetProperties, &m_renderTarget ));
-    if (!m_renderTarget) return;
+    if (!m_renderTarget) {
+        m_resizingSwapChain = false;
+        return;
+    }
 
     // Recreate default brush using the new render target to avoid device-dependent resource mismatch crashes
     m_brush.Reset();
     HRCHECK_LOG(m_renderTarget->CreateSolidColorBrush( float4(0,0,0,1), &m_brush ));
+    m_resizingSwapChain = false;
 }
 
 void Overlay::saveWindowPosAndSize()
@@ -471,4 +502,3 @@ void Overlay::onConfigChanged() {}
 void Overlay::onSessionChanged() {}
 float2 Overlay::getDefaultSize() { return float2(400,300); }
 bool Overlay::hasCustomBackground() { return false; }
-

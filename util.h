@@ -37,10 +37,13 @@ SOFTWARE.
 #include <shlobj.h>
 #include <stdarg.h>
 #include <time.h>
+#include <string.h>
+#include <exception>
 
 #define HRCHECK( x_ ) do{ \
     HRESULT hr_ = x_; \
     if( FAILED(hr_) ) { \
+        logMsg("ERROR", "failed call to %s (%s:%d), hr=0x%x", #x_, __FILE__, __LINE__,hr_); \
         printf("ERROR: failed call to %s (%s:%d), hr=0x%x\n", #x_, __FILE__, __LINE__,hr_); \
         exit(1); \
     } } while(0)
@@ -73,6 +76,40 @@ inline std::string getRonDir()
     return "";
 }
 
+inline std::string getApplicationLogPath()
+{
+    char path[MAX_PATH] = {};
+    const DWORD length = GetModuleFileNameA(NULL, path, MAX_PATH);
+    if( length > 0 && length < MAX_PATH )
+    {
+        std::string logPath(path, length);
+        const size_t separator = logPath.find_last_of("\\/");
+        if( separator != std::string::npos )
+            return logPath.substr(0, separator + 1) + "iRon-Advanced.log";
+    }
+
+    return getRonDir() + "iRon-Advanced.log";
+}
+
+inline void appendLogLine(const char* message)
+{
+    const std::string logPath = getApplicationLogPath();
+    HANDLE logFile = CreateFileA(logPath.c_str(), FILE_APPEND_DATA, FILE_SHARE_READ | FILE_SHARE_WRITE,
+        NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+    if( logFile == INVALID_HANDLE_VALUE && logPath != getRonDir() + "iRon-Advanced.log" )
+    {
+        const std::string fallbackPath = getRonDir() + "iRon-Advanced.log";
+        logFile = CreateFileA(fallbackPath.c_str(), FILE_APPEND_DATA, FILE_SHARE_READ | FILE_SHARE_WRITE,
+            NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+    }
+    if( logFile == INVALID_HANDLE_VALUE )
+        return;
+
+    DWORD written = 0;
+    WriteFile(logFile, message, (DWORD)strlen(message), &written, NULL);
+    CloseHandle(logFile);
+}
+
 inline void logMsg(const char* level, const char* format, ...)
 {
     time_t rawtime;
@@ -91,6 +128,29 @@ inline void logMsg(const char* level, const char* format, ...)
     char dbgMsg[2560];
     sprintf_s(dbgMsg, "[iRon] [%s] [%s] %s\n", timeStr, level, message);
     OutputDebugStringA(dbgMsg);
+    appendLogLine(dbgMsg);
+}
+
+inline LONG WINAPI logUnhandledException(EXCEPTION_POINTERS* exceptionInfo)
+{
+    const DWORD exceptionCode = exceptionInfo && exceptionInfo->ExceptionRecord
+        ? exceptionInfo->ExceptionRecord->ExceptionCode : 0;
+    const void* exceptionAddress = exceptionInfo && exceptionInfo->ExceptionRecord
+        ? exceptionInfo->ExceptionRecord->ExceptionAddress : NULL;
+    logMsg("FATAL", "Unhandled exception: code=0x%08lX address=%p", exceptionCode, exceptionAddress);
+    return EXCEPTION_CONTINUE_SEARCH;
+}
+
+inline void logTerminate()
+{
+    logMsg("FATAL", "std::terminate was called.");
+    abort();
+}
+
+inline void installCrashLogging()
+{
+    SetUnhandledExceptionFilter(logUnhandledException);
+    std::set_terminate(logTerminate);
 }
 
 inline int printf_to_log_and_console(const char* format, ...)
@@ -691,4 +751,3 @@ inline BrandBadge getBrandBadge(const std::string& carName) {
     
     return badge;
 }
-

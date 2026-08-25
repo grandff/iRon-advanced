@@ -58,7 +58,7 @@ This project is a heavily expanded version of the original `iRon` overlay. While
 
 ## 📥 Where to Download
 
-The latest binary release can be found [here](https://github.com/lespalt/iRon/releases/latest).
+The latest binary release can be found [here](https://github.com/grandff/iRon-advanced/releases/latest).
 
 <br>
 

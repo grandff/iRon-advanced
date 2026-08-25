@@ -58,7 +58,7 @@ iRacing向けの軽量で強力な拡張オーバーレイ<br><br>
 
 ## 📥 ダウンロード先
 
-最新のバイナリリリースは[こちら](https://github.com/lespalt/iRon/releases/latest)からダウンロードできます。
+最新のバイナリリリースは[こちら](https://github.com/grandff/iRon-advanced/releases/latest)からダウンロードできます。
 
 <br>
 

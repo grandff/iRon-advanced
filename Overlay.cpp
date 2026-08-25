@@ -97,6 +97,13 @@ static LRESULT CALLBACK windowProc( HWND hwnd, UINT msg, WPARAM wparam, LPARAM l
                 if( wparam == SIZE_MINIMIZED )
                     break;
 
+                // SetWindowPos sends WM_SIZE before it returns. Let its caller
+                // rebuild the swap chain once using the requested dimensions;
+                // resizing here as well can leave the composition surface at a
+                // stale (often DPI-scaled) size.
+                if( o->isApplyingWindowBounds() )
+                    break;
+
                 RECT r;
                 GetWindowRect( hwnd, &r );
                 o->setWindowPosAndSize( r.left, r.top, LOWORD(lparam), HIWORD(lparam), false );
@@ -422,10 +429,16 @@ void Overlay::setWindowPosAndSize( int x, int y, int w, int h, bool callSetWindo
     }
 
     if( callSetWindowPos && m_hwnd )
-        SetWindowPos( m_hwnd, HWND_TOPMOST, x, y, w, h, SWP_NOACTIVATE|SWP_SHOWWINDOW );
+    {
+        m_applyingWindowBounds = true;
+        const BOOL positioned = SetWindowPos( m_hwnd, HWND_TOPMOST, x, y, w, h, SWP_NOACTIVATE|SWP_SHOWWINDOW );
+        m_applyingWindowBounds = false;
+        if( !positioned )
+            logMsg("WARN", "SetWindowPos failed for %s: error=%lu", m_name.c_str(), GetLastError());
+    }
 
-    // SetWindowPos sends WM_SIZE synchronously. Re-check after it returns so
-    // the WM_SIZE handler is the only code that rebuilds the swap chain.
+    // During SetWindowPos, WM_SIZE is intentionally ignored above so this is
+    // the sole swap-chain resize for a programmatic layout update.
     const bool sizeChanged = w != m_width || h != m_height;
     
     m_xpos = x;
@@ -434,8 +447,6 @@ void Overlay::setWindowPosAndSize( int x, int y, int w, int h, bool callSetWindo
     m_height = h;
 
     // Moving an overlay does not require recreating its DirectX back buffer.
-    // WM_SIZE can be sent synchronously by SetWindowPos, so only the first
-    // resize request may rebuild the swap chain.
     if (!m_swapChain || !sizeChanged || m_resizingSwapChain)
         return;
 
@@ -483,6 +494,11 @@ void Overlay::saveWindowPosAndSize()
     g_cfg.setInt( m_name, "window_size_y", m_height  );
 
     g_cfg.save();
+}
+
+bool Overlay::isApplyingWindowBounds() const
+{
+    return m_applyingWindowBounds;
 }
 
 bool Overlay::canEnableWhileNotDriving() const

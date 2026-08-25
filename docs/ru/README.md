@@ -58,7 +58,7 @@
 
 ## 📥 Где скачать
 
-Последнюю скомпилированную версию приложения можно найти [здесь](https://github.com/lespalt/iRon/releases/latest).
+Последнюю скомпилированную версию приложения можно найти [здесь](https://github.com/grandff/iRon-advanced/releases/latest).
 
 <br>
 

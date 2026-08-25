@@ -60,7 +60,7 @@ iRacing을 위한 가볍고 강력한 확장 오버레이<br><br>
 
 ## 📥 다운로드 위치
 
-최신 실행 파일(Binary)은 [이곳](https://github.com/lespalt/iRon/releases/latest)에서 다운로드할 수 있습니다.
+최신 실행 파일(Binary)은 [이곳](https://github.com/grandff/iRon-advanced/releases/latest)에서 다운로드할 수 있습니다.
 
 <br>
 

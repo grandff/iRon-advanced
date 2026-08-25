@@ -58,6 +58,7 @@ class Overlay
 
         void            setWindowPosAndSize( int x, int y, int w, int h, bool callSetWindowPos=true );
         void            saveWindowPosAndSize();
+        bool            isApplyingWindowBounds() const;
         virtual float2  getDefaultSize();
 
     protected:
@@ -77,6 +78,7 @@ class Overlay
         int             m_ypos = 0;
         int             m_width = 0;
         int             m_height = 0;
+        bool            m_applyingWindowBounds = false;
         bool            m_resizingSwapChain = false;
 
         Microsoft::WRL::ComPtr<ID3D11Device>            m_d3dDevice;

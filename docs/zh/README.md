@@ -58,7 +58,7 @@
 
 ## 📥 下载地址
 
-您可以在[此处](https://github.com/lespalt/iRon/releases/latest)找到最新的二进制发布版本。
+您可以在[此处](https://github.com/grandff/iRon-advanced/releases/latest)找到最新的二进制发布版本。
 
 <br>
 

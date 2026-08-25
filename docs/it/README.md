@@ -58,7 +58,7 @@ Questo progetto è una versione notevolmente ampliata dell'overlay `iRon` origin
 
 ## 📥 Dove scaricare
 
-L'ultima versione binaria rilasciata è disponibile [qui](https://github.com/lespalt/iRon/releases/latest).
+L'ultima versione binaria rilasciata è disponibile [qui](https://github.com/grandff/iRon-advanced/releases/latest).
 
 <br>
 
